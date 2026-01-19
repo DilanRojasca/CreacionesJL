@@ -26,12 +26,13 @@
   font-size: clamp(1.5rem, 3vw, 2rem);
 }
 
-.form-group {
+/* Scoped to LoginForm to avoid cross-page conflicts */
+.login-form .form-group {
   margin-bottom: 1.5rem;
   text-align: left;
 }
 
-.form-group label {
+.login-form .form-group label {
   display: block;
   margin-bottom: var(--spacing-xs);
   color: var(--text-secondary);
@@ -39,7 +40,7 @@
   font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
-.form-group input {
+.login-form .form-group input {
   width: 100%;
   padding: 0.9rem 1rem;
   border: 2px solid var(--border-light);
@@ -51,10 +52,17 @@
   transition: var(--transition-normal);
 }
 
-.form-group input:focus {
+.login-form .form-group input:focus {
   outline: none;
   border-color: var(--border-accent);
   background-color: var(--bg-input-focus);
+}
+
+.login-form .error-message {
+  color: var(--text-error);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  text-align: left;
 }
 
 .login-form-footer {
@@ -103,4 +111,3 @@
     padding: 1.5rem 1.2rem;
   }
 }
-
