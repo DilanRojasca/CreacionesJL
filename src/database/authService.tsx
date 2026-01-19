@@ -71,7 +71,7 @@ export const registerUser = async (
         },
         // Configuración de email (si tienes email templates personalizados)
         emailRedirectTo: `${window.location.origin}/login`,
-      },
+      }
     });
 
     return {
