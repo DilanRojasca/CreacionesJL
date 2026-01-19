@@ -1,22 +1,6 @@
-/**
- * Servicio de Autenticación con Supabase
- * 
- * Este módulo contiene todas las funciones relacionadas con la autenticación de usuarios:
- * - Registro de nuevos usuarios
- * - Inicio de sesión
- * - Cierre de sesión
- * - Recuperación de contraseña
- * - Gestión de sesiones
- * 
- * Todas las funciones utilizan el cliente de Supabase configurado en supabase.tsx
- */
-
 import { supabase } from './supabase';
 import type { User, AuthError, Session } from '@supabase/supabase-js';
 
-/**
- * Tipos de datos para las respuestas de autenticación
- */
 export interface RegisterResponse {
   user: User | null;
   session: Session | null;
@@ -37,6 +21,8 @@ export interface LoginResponse {
  * @param firstName - Nombre del usuario (opcional, se guarda en metadata)
  * @param lastName - Apellido del usuario (opcional, se guarda en metadata)
  * @param phone - Teléfono del usuario (opcional, se guarda en metadata)
+ * @param address - Dirección del usuario (opcional, se guarda en metadata)
+ * @param addressdetails - Detalles de la dirección del usuario (opcional, se guarda en metadata)
  * 
  * @returns Promise con el usuario creado, sesión y posibles errores
  * 
@@ -46,7 +32,10 @@ export interface LoginResponse {
  *   'usuario@ejemplo.com',
  *   'password123',
  *   'Juan',
- *   'Pérez'
+ *   'Pérez',
+ *   '1234567890',
+ *   'Calle 123',
+ *   'Detalles de la dirección'
  * );
  * 
  * if (error) {
@@ -61,7 +50,9 @@ export const registerUser = async (
   password: string,
   firstName?: string,
   lastName?: string,
-  phone?: string
+  phone?: string,
+  address?: string,
+  addressDetails?: string
 ): Promise<RegisterResponse> => {
   try {
     // Registrar usuario en Supabase Auth
@@ -75,6 +66,8 @@ export const registerUser = async (
           last_name: lastName || '',
           full_name: `${firstName || ''} ${lastName || ''}`.trim(),
           phone: phone || '',
+          address: address || '',
+          address_details: addressDetails || '',
         },
         // Configuración de email (si tienes email templates personalizados)
         emailRedirectTo: `${window.location.origin}/login`,
