@@ -17,6 +17,7 @@ const RegisterForm: React.FC = () => {
   const [address, setAddress] = useState('');
   const [addressdetails, setAddressdetails] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [errors, setErrors] = useState({
     email: '',
     password: '',
@@ -167,8 +168,11 @@ const RegisterForm: React.FC = () => {
           name="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onFocus={() => setIsPasswordFocused(true)}
+          onBlur={() => setIsPasswordFocused(false)}
           required
         />
+        {isPasswordFocused && <p className="help-message">Mínimo 6 caracteres</p>}
       </div>
       <div className="form-group">
         <label htmlFor="confirmPassword">Repetir Contraseña:</label>
