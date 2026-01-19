@@ -36,6 +36,7 @@ export interface LoginResponse {
  * @param password - Contraseña del usuario (mínimo 6 caracteres)
  * @param firstName - Nombre del usuario (opcional, se guarda en metadata)
  * @param lastName - Apellido del usuario (opcional, se guarda en metadata)
+ * @param phone - Teléfono del usuario (opcional, se guarda en metadata)
  * 
  * @returns Promise con el usuario creado, sesión y posibles errores
  * 
@@ -59,7 +60,8 @@ export const registerUser = async (
   email: string,
   password: string,
   firstName?: string,
-  lastName?: string
+  lastName?: string,
+  phone?: string
 ): Promise<RegisterResponse> => {
   try {
     // Registrar usuario en Supabase Auth
@@ -72,10 +74,11 @@ export const registerUser = async (
           first_name: firstName || '',
           last_name: lastName || '',
           full_name: `${firstName || ''} ${lastName || ''}`.trim(),
+          phone: phone || '',
         },
         // Configuración de email (si tienes email templates personalizados)
         emailRedirectTo: `${window.location.origin}/login`,
-      },
+      }
     });
 
     return {

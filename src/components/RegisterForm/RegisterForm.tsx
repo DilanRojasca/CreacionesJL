@@ -76,7 +76,7 @@ const RegisterForm: React.FC = () => {
 
       try {
         // Registrar usuario usando el contexto de autenticación
-        const { error } = await register(email, password, firstName, lastName);
+        const { error } = await register(email, password, firstName, lastName, phone);
 
         if (error) {
           // Manejar errores específicos de Supabase

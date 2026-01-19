@@ -40,7 +40,7 @@ interface AuthContextType {
 
   // Funciones
   login: (email: string, password: string) => Promise<{ error: any }>;
-  register: (email: string, password: string, firstName?: string, lastName?: string) => Promise<{ error: any }>;
+  register: (email: string, password: string, firstName?: string, lastName?: string, phone?: string) => Promise<{ error: any }>;
   logout: () => Promise<void>;
 }
 
@@ -125,10 +125,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     email: string,
     password: string,
     firstName?: string,
-    lastName?: string
+    lastName?: string,
+    phone?: string
   ) => {
     setIsLoading(true);
-    const { error } = await registerUser(email, password, firstName, lastName);
+    const { error } = await registerUser(email, password, firstName, lastName, phone);
     setIsLoading(false);
     return { error };
   };
