@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './RegisterForm.css';
 import Button from '../Button/Button';
 import { TIPOS_VIA, LETRAS, CARDINALES, TIPO_INMUEBLE, construirDireccionLegible, type AddressState } from '../../utils/addressUtils';
+import { fetchColombiaData, type ColombiaDepartment } from '../../utils/colombiaData';
 
 const RegisterForm: React.FC = () => {
   const { register } = useAuth();
@@ -15,6 +16,32 @@ const RegisterForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phone, setPhone] = useState('');
+  const [Country, setCountry] = useState('Colombia');
+  const [Department, setDepartment] = useState('');
+  const [City, setCity] = useState('');
+  const [departments, setDepartments] = useState<ColombiaDepartment[]>([]);
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetchColombiaData();
+      setDepartments(data);
+    };
+    loadData();
+  }, []);
+
+  const handleDepartmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const deptName = e.target.value;
+    setDepartment(deptName);
+    setCity(''); // Reset city when department changes
+
+    const selectedDept = departments.find(d => d.departamento === deptName);
+    if (selectedDept) {
+      setAvailableCities(selectedDept.ciudades);
+    } else {
+      setAvailableCities([]);
+    }
+  };
   const [direccion, setDireccion] = useState<AddressState>({
     via_tipo: TIPOS_VIA[0],
     via_numero: '',
@@ -91,7 +118,7 @@ const RegisterForm: React.FC = () => {
         // Construir la dirección legible antes de enviar
         const formattedAddress = construirDireccionLegible(direccion);
         // Registrar usuario usando el contexto de autenticación
-        const { error } = await register(email, password, firstName, lastName, phone, formattedAddress, addressdetails, direccion);
+        const { error } = await register(email, password, firstName, lastName, phone, formattedAddress, addressdetails, { ...direccion, country: Country, department: Department, city: City });
 
         if (error) {
           // Manejar errores específicos de Supabase
@@ -121,6 +148,9 @@ const RegisterForm: React.FC = () => {
           setPassword('');
           setConfirmPassword('');
           setPhone('');
+          setCountry('');
+          setDepartment('');
+          setCity('');
           setDireccion({
             via_tipo: TIPOS_VIA[0],
             via_numero: '',
@@ -224,6 +254,53 @@ const RegisterForm: React.FC = () => {
             onChange={(e) => setPhone(e.target.value)}
             required
           />
+        </div>
+        <div className="form-group full-width">
+          <label htmlFor="country">País:</label>
+          <select
+            id="country"
+            name="country"
+            value={Country}
+            onChange={(e) => setCountry(e.target.value)}
+            required
+          >
+            <option value="Colombia">Colombia</option>
+          </select>
+        </div>
+        <div className="form-group full-width">
+          <label htmlFor="department">Departamento:</label>
+          <select
+            id="department"
+            name="department"
+            value={Department}
+            onChange={handleDepartmentChange}
+            required
+          >
+            <option value="">Seleccione un departamento</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.departamento}>
+                {dept.departamento}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group full-width">
+          <label htmlFor="city">Ciudad:</label>
+          <select
+            id="city"
+            name="city"
+            value={City}
+            onChange={(e) => setCity(e.target.value)}
+            required
+            disabled={!Department}
+          >
+            <option value="">Seleccione una ciudad</option>
+            {availableCities.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="form-group full-width address-section">
           <label>Dirección:</label>

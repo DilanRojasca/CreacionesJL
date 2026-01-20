@@ -21,6 +21,10 @@ export interface LoginResponse {
  * @param firstName - Nombre del usuario (opcional, se guarda en metadata)
  * @param lastName - Apellido del usuario (opcional, se guarda en metadata)
  * @param phone - Teléfono del usuario (opcional, se guarda en metadata)
+ * @param Country - País del usuario (opcional, se guarda en metadata)
+ * @param Department - Departamento del usuario (opcional, se guarda en metadata)
+ * @param municipality - Municipio del usuario (opcional, se guarda en metadata)
+ * @param addressJson - Dirección del usuario (opcional, se guarda en metadata)
  * @param address - Dirección del usuario (opcional, se guarda en metadata)
  * @param addressdetails - Detalles de la dirección del usuario (opcional, se guarda en metadata)
  * 
