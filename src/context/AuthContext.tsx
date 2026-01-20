@@ -21,6 +21,9 @@ interface AuthContextType {
     firstName?: string,
     lastName?: string,
     phone?: string,
+    country?: string,
+    department?: string,
+    city?: string,
     address?: string,
     addressDetails?: string,
     addressJson?: object
@@ -88,12 +91,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     firstName?: string,
     lastName?: string,
     phone?: string,
+    country?: string,
+    department?: string,
+    city?: string,
     address?: string,
     addressDetails?: string,
     addressJson?: object
   ) => {
     setIsLoading(true);
-    const { error } = await registerUser(email, password, firstName, lastName, phone, address, addressDetails, addressJson);
+    const { error } = await registerUser(email, password, firstName, lastName, phone, country, department, city, address, addressDetails, addressJson);
     setIsLoading(false);
     return { error };
   };
