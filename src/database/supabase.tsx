@@ -29,7 +29,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
  * Almacenamiento personalizado usando Cookies con soporte para CHUNKING
  * Las cookies tienen un límite de 4096 bytes. Las sesiones de Supabase pueden excederlo.
  */
-const CHUNK_SIZE = 2500; // Reducido para mayor seguridad con el encoding
 
 // Función auxiliar para limpiar localStorage de restos de sesiones anteriores
 if (typeof window !== 'undefined') {
@@ -44,47 +43,38 @@ const cookieStorage = {
   getItem: (key: string): string | null => {
     if (typeof document === 'undefined') return null;
     const cookies = document.cookie.split('; ');
-    let value = '';
-    let i = 0;
-    while (true) {
-      const chunkKey = i === 0 ? key : `${key}.${i}`;
-      const search = `${chunkKey}=`;
-      const cookie = cookies.find(row => row.trim().startsWith(search));
-      if (!cookie) break;
-      value += decodeURIComponent(cookie.trim().substring(search.length));
-      i++;
-    }
-    return value || null;
+    const search = `${key}=`;
+    const cookie = cookies.find(row => row.trim().startsWith(search));
+    return cookie ? decodeURIComponent(cookie.trim().substring(search.length)) : null;
   },
   setItem: (key: string, value: string): void => {
     if (typeof document === 'undefined') return;
-    
-    // 1. Limpiar todos los chunks posibles antes de guardar
-    cookieStorage.removeItem(key);
 
-    // 2. Dividir en pedazos
-    const chunks = [];
-    for (let i = 0; i < value.length; i += CHUNK_SIZE) {
-      chunks.push(value.substring(i, i + CHUNK_SIZE));
+    try {
+      // Supabase envía todo el objeto de sesión (incluyendo user_metadata pesado).
+      // Parseamos para quedarnos SOLO con los tokens de autenticación.
+      const session = JSON.parse(value);
+      if (session.access_token) {
+        const essentialSession = {
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at,
+          expires_in: session.expires_in,
+          token_type: session.token_type,
+          // Omitimos 'user' que contiene todos los datos de registro pesados
+        };
+        value = JSON.stringify(essentialSession);
+      }
+    } catch (e) {
+      // Si no es JSON, se guarda tal cual (ej. códigos de verificación)
     }
 
-    // 3. Guardar cada pedazo como una cookie independiente
-    chunks.forEach((chunk, i) => {
-      const chunkKey = i === 0 ? key : `${key}.${i}`;
-      // Usar SameSite=Lax y Secure. Path=/ para que esté en toda la web.
-      document.cookie = `${chunkKey}=${encodeURIComponent(chunk)}; path=/; max-age=31536000; SameSite=Lax; Secure`;
-    });
+    // Al guardar solo lo esencial, el tamaño será < 1KB y no necesitamos chunking.
+    document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=31536000; SameSite=Lax; Secure`;
   },
   removeItem: (key: string): void => {
     if (typeof document === 'undefined') return;
-    const cookies = document.cookie.split('; ');
-    cookies.forEach(cookie => {
-      const name = cookie.split('=')[0].trim();
-      // Eliminar el principal y cualquier .1, .2, etc.
-      if (name === key || name.startsWith(`${key}.`)) {
-        document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax; Secure`;
-      }
-    });
+    document.cookie = `${key}=; path=/; max-age=0; SameSite=Lax; Secure`;
   },
 };
 
