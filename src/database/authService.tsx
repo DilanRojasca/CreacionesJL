@@ -52,7 +52,8 @@ export const registerUser = async (
   lastName?: string,
   phone?: string,
   address?: string,
-  addressDetails?: string
+  addressDetails?: string,
+  addressJson?: object
 ): Promise<RegisterResponse> => {
   try {
     // Registrar usuario en Supabase Auth
@@ -66,8 +67,9 @@ export const registerUser = async (
           last_name: lastName || '',
           full_name: `${firstName || ''} ${lastName || ''}`.trim(),
           phone: phone || '',
-          address: address || '',
+          address_text: address || '',
           address_details: addressDetails || '',
+          address_json: addressJson || {},
         },
         // Configuración de email (si tienes email templates personalizados)
         emailRedirectTo: `${window.location.origin}/login`,
@@ -191,12 +193,12 @@ export const logoutUser = async (): Promise<{ error: AuthError | null }> => {
 export const getCurrentSession = async (): Promise<Session | null> => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
-    
+
     if (error) {
       console.error('Error al obtener sesión:', error);
       return null;
     }
-    
+
     return session;
   } catch (error) {
     console.error('Error inesperado al obtener sesión:', error);
@@ -220,12 +222,12 @@ export const getCurrentSession = async (): Promise<Session | null> => {
 export const getCurrentUser = async (): Promise<User | null> => {
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
-    
+
     if (error) {
       console.error('Error al obtener usuario:', error);
       return null;
     }
-    
+
     return user;
   } catch (error) {
     console.error('Error inesperado al obtener usuario:', error);
@@ -257,7 +259,7 @@ export const resetPassword = async (
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    
+
     return { error };
   } catch (error) {
     console.error('Error inesperado al resetear contraseña:', error);

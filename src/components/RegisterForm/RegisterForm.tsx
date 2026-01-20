@@ -91,7 +91,7 @@ const RegisterForm: React.FC = () => {
         // Construir la dirección legible antes de enviar
         const formattedAddress = construirDireccionLegible(direccion);
         // Registrar usuario usando el contexto de autenticación
-        const { error } = await register(email, password, firstName, lastName, formattedAddress, phone, addressdetails);
+        const { error } = await register(email, password, firstName, lastName, phone, formattedAddress, addressdetails, direccion);
 
         if (error) {
           // Manejar errores específicos de Supabase

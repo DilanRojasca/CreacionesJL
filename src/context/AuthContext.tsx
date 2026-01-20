@@ -5,7 +5,7 @@ import { loginUser, registerUser, logoutUser } from '../database/authService';
 import type { User, Session } from '@supabase/supabase-js';
 
 
- //Interfaz del contexto de autenticación
+//Interfaz del contexto de autenticación
 interface AuthContextType {
   // Estado
   user: User | null;
@@ -22,7 +22,8 @@ interface AuthContextType {
     lastName?: string,
     phone?: string,
     address?: string,
-    addressDetails?: string
+    addressDetails?: string,
+    addressJson?: object
   ) => Promise<{ error: any }>;
   logout: () => Promise<void>;
 }
@@ -33,8 +34,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 
- //Props del proveedor de autenticación
- 
+//Props del proveedor de autenticación
+
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -47,8 +48,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  
-//Función para actualizar el estado de autenticación
+
+  //Función para actualizar el estado de autenticación
   const updateAuthState = (session: Session | null) => {
     setSession(session);
     setUser(session?.user ?? null);
@@ -88,10 +89,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     lastName?: string,
     phone?: string,
     address?: string,
-    addressDetails?: string
+    addressDetails?: string,
+    addressJson?: object
   ) => {
     setIsLoading(true);
-    const { error } = await registerUser(email, password, firstName, lastName, phone, address, addressDetails);
+    const { error } = await registerUser(email, password, firstName, lastName, phone, address, addressDetails, addressJson);
     setIsLoading(false);
     return { error };
   };
@@ -119,13 +121,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  
+
   if (context === undefined) {
     throw new Error(
       '❌ useAuth debe ser usado dentro de un AuthProvider. ' +
       'Asegúrate de envolver tu aplicación con <AuthProvider>'
     );
   }
-  
+
   return context;
 };
