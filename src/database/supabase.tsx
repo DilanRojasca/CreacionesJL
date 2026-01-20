@@ -45,32 +45,52 @@ const cookieStorage = {
     const cookies = document.cookie.split('; ');
     const search = `${key}=`;
     const cookie = cookies.find(row => row.trim().startsWith(search));
-    return cookie ? decodeURIComponent(cookie.trim().substring(search.length)) : null;
+    
+    if (!cookie) return null;
+    
+    try {
+      // Extraemos el valor y lo decodificamos
+      const value = cookie.trim().substring(search.length);
+      return decodeURIComponent(value);
+    } catch (e) {
+      console.error('Error reading cookie:', key, e);
+      return null;
+    }
   },
   setItem: (key: string, value: string): void => {
     if (typeof document === 'undefined') return;
 
+    let finalValue = value;
     try {
-      // Supabase envía todo el objeto de sesión (incluyendo user_metadata pesado).
-      // Parseamos para quedarnos SOLO con los tokens de autenticación.
+      // Supabase envía el objeto de sesión completo como string.
+      // Lo parseamos para reducir su tamaño eliminando metadata pesada.
       const session = JSON.parse(value);
-      if (session.access_token) {
-        const essentialSession = {
+      
+      // Es CRUCIAL mantener la estructura que espera el SDK { access_token, user, ... }
+      if (session && session.access_token && session.user) {
+        const minimalSession = {
           access_token: session.access_token,
           refresh_token: session.refresh_token,
           expires_at: session.expires_at,
           expires_in: session.expires_in,
           token_type: session.token_type,
-          // Omitimos 'user' que contiene todos los datos de registro pesados
+          user: {
+            id: session.user.id,
+            email: session.user.email,
+            aud: session.user.aud,
+            role: session.user.role
+            // ❌ ELIMINAMOS metadata, identites y otros campos gigantes (+4KB)
+          }
         };
-        value = JSON.stringify(essentialSession);
+        finalValue = JSON.stringify(minimalSession);
       }
     } catch (e) {
-      // Si no es JSON, se guarda tal cual (ej. códigos de verificación)
+      // Si no es un JSON válido de sesión, guardamos el original
+      finalValue = value;
     }
 
-    // Al guardar solo lo esencial, el tamaño será < 1KB y no necesitamos chunking.
-    document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=31536000; SameSite=Lax; Secure`;
+    // Guardar en cookie (ahora siempre medirá < 1.5KB)
+    document.cookie = `${key}=${encodeURIComponent(finalValue)}; path=/; max-age=31536000; SameSite=Lax; Secure`;
   },
   removeItem: (key: string): void => {
     if (typeof document === 'undefined') return;
