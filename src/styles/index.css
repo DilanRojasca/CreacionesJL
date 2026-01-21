@@ -104,6 +104,12 @@ body,
   --container-gutter: var(--spacing-md);
   --radius-card: var(--border-radius-md);
 
+  /* Breakpoints (para referencia en comentarios y media queries) */
+  --breakpoint-mobile: 480px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1400px;
+
   /* Fuentes */
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -159,6 +165,18 @@ textarea {
 
 /* Small screens: slightly tighter gutters */
 @media (max-width: 480px) {
+  :root {
+    --container-gutter: var(--spacing-sm);
+    --spacing-md: 1rem;
+  }
+  
+  body {
+    font-size: 14px;
+  }
+}
+
+/* Tablet adjustments */
+@media (max-width: 768px) {
   :root {
     --container-gutter: var(--spacing-sm);
   }

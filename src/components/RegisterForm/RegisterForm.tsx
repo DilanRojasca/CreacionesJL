@@ -251,6 +251,7 @@ const RegisterForm: React.FC = () => {
             value={Country}
             onChange={setCountry}
             placeholder="Seleccione un país"
+            id="country"
           />
         </div>
         <div className="form-group full-width">
@@ -269,6 +270,7 @@ const RegisterForm: React.FC = () => {
               }
             }}
             placeholder="Seleccione un departamento"
+            id = "department"
           />
         </div>
         <div className="form-group full-width">
@@ -279,6 +281,7 @@ const RegisterForm: React.FC = () => {
             onChange={setCity}
             placeholder="Seleccione una ciudad"
             disabled={!Department}
+            id="city"
           />
         </div>
         <div className="form-group full-width address-section">
@@ -345,12 +348,7 @@ const RegisterForm: React.FC = () => {
               onChange={(value) => setDireccion({ ...direccion, cruce_cardinal: value })}
               className="address-select-sm"
             />
-          </div>
-
-          <div className="address-separator">-</div>
-
-          {/* BLOQUE 3: Placa */}
-          <div className="address-row">
+            <div className="address-separator">-</div>
             <input
               type="text"
               placeholder="Placa"
@@ -361,7 +359,7 @@ const RegisterForm: React.FC = () => {
             />
           </div>
 
-          {/* BLOQUE 4: Complemento */}
+          {/* BLOQUE 3: Complemento */}
           <div className="address-row full-row">
             <h4>Complemento (Opcional):</h4>
             <Dropdown
