@@ -2,8 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../Button/Button';
+import { FaUser, FaCartArrowDown, FaArrowRightFromBracket, FaChevronDown } from 'react-icons/fa6';
 import './Navbar.css';
 
+/**
+ * Navbar component that changes based on authentication state.
+ */
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -44,37 +48,44 @@ const Navbar: React.FC = () => {
         
         <div className="navbar-actions">
           {isAuthenticated ? (
-            <div className="user-menu-container" ref={dropdownRef}>
-              <button 
-                className={`user-avatar-button ${isDropdownOpen ? 'active' : ''}`}
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                aria-label="Menú de usuario"
-              >
-                <div className="user-avatar">
-                  {getInitial()}
-                </div>
-                <span className="dropdown-arrow">▼</span>
-              </button>
-              
-              {isDropdownOpen && (
-                <div className="user-dropdown">
-                  <div className="dropdown-header">
-                    <p className="user-name">{user?.user_metadata?.full_name || user?.email}</p>
+            <>
+              <Link to="/cart" className="navbar-cart-button" aria-label="Ver carrito">
+                <FaCartArrowDown />
+                <span className="cart-badge">0</span>
+              </Link>
+
+              <div className="user-menu-container" ref={dropdownRef}>
+                <button 
+                  className={`user-avatar-button ${isDropdownOpen ? 'active' : ''}`}
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  aria-label="Menú de usuario"
+                >
+                  <div className="user-avatar">
+                    {getInitial()}
                   </div>
-                  <div className="dropdown-divider"></div>
-                  <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
-                    Perfil
-                  </Link>
-                  <Link to="/cart" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
-                    Carrito
-                  </Link>
-                  <div className="dropdown-divider"></div>
-                  <button className="dropdown-item logout-button" onClick={handleLogout}>
-                    Cerrar sesión
-                  </button>
-                </div>
-              )}
-            </div>
+                  <span className={`dropdown-arrow-icon ${isDropdownOpen ? 'rotate' : ''}`}>
+                    <FaChevronDown />
+                  </span>
+                </button>
+                
+                {isDropdownOpen && (
+                  <div className="user-dropdown">
+                    <div className="dropdown-header">
+                      <p className="user-name">{user?.user_metadata?.full_name || user?.email}</p>
+                      <p className="user-email-sub">{user?.email}</p>
+                    </div>
+                    <div className="dropdown-divider"></div>
+                    <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
+                      <FaUser className="item-icon-sigma" /> Perfil
+                    </Link>
+                    <div className="dropdown-divider"></div>
+                    <button className="dropdown-item logout-button" onClick={handleLogout}>
+                      <FaArrowRightFromBracket className="item-icon-sigma" /> Cerrar sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           ) : (
             <div className="navbar-buttons">
               <Button to="/login" variant="tertiary" size="medium">
