@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './RegisterForm.css';
 import Button from '../Button/Button';
+import Dropdown from '../Dropdown/Dropdown';
 import { TIPOS_VIA, LETRAS, CARDINALES, TIPO_INMUEBLE, construirDireccionLegible, type AddressState } from '../../utils/addressUtils';
 import { fetchColombiaData, type ColombiaDepartment } from '../../utils/colombiaData';
 
@@ -29,19 +30,6 @@ const RegisterForm: React.FC = () => {
     };
     loadData();
   }, []);
-
-  const handleDepartmentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const deptName = e.target.value;
-    setDepartment(deptName);
-    setCity(''); // Reset city when department changes
-
-    const selectedDept = departments.find(d => d.departamento === deptName);
-    if (selectedDept) {
-      setAvailableCities(selectedDept.ciudades);
-    } else {
-      setAvailableCities([]);
-    }
-  };
   const [direccion, setDireccion] = useState<AddressState>({
     via_tipo: TIPOS_VIA[0],
     via_numero: '',
@@ -252,85 +240,72 @@ const RegisterForm: React.FC = () => {
             name="phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            onKeyPress={(e) => { if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter', '+', '(', ')', '-', ' '].includes(e.key)) e.preventDefault(); }}
             required
           />
         </div>
         <div className="form-group full-width">
           <label htmlFor="country">País:</label>
-          <select
-            id="country"
-            name="country"
+          <Dropdown
+            options={[{ value: 'Colombia', label: 'Colombia' }]}
             value={Country}
-            onChange={(e) => setCountry(e.target.value)}
-            required
-          >
-            <option value="Colombia">Colombia</option>
-          </select>
+            onChange={setCountry}
+            placeholder="Seleccione un país"
+          />
         </div>
         <div className="form-group full-width">
           <label htmlFor="department">Departamento:</label>
-          <select
-            id="department"
-            name="department"
+          <Dropdown
+            options={departments.map(dept => ({ value: dept.departamento, label: dept.departamento }))}
             value={Department}
-            onChange={handleDepartmentChange}
-            required
-          >
-            <option value="">Seleccione un departamento</option>
-            {departments.map((dept) => (
-              <option key={dept.id} value={dept.departamento}>
-                {dept.departamento}
-              </option>
-            ))}
-          </select>
+            onChange={(deptName) => {
+              setDepartment(deptName);
+              setCity(''); // Reset city when department changes
+              const selectedDept = departments.find(d => d.departamento === deptName);
+              if (selectedDept) {
+                setAvailableCities(selectedDept.ciudades);
+              } else {
+                setAvailableCities([]);
+              }
+            }}
+            placeholder="Seleccione un departamento"
+          />
         </div>
         <div className="form-group full-width">
           <label htmlFor="city">Ciudad:</label>
-          <select
-            id="city"
-            name="city"
+          <Dropdown
+            options={availableCities.map(city => ({ value: city, label: city }))}
             value={City}
-            onChange={(e) => setCity(e.target.value)}
-            required
+            onChange={setCity}
+            placeholder="Seleccione una ciudad"
             disabled={!Department}
-          >
-            <option value="">Seleccione una ciudad</option>
-            {availableCities.map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
+          />
         </div>
         <div className="form-group full-width address-section">
           <label>Dirección:</label>
 
           {/* BLOQUE 1: Vía Principal */}
           <div className="address-row">
-            <select
-              name="via_tipo"
+            <Dropdown
+              options={TIPOS_VIA.map(t => ({ value: t, label: t }))}
               value={direccion.via_tipo}
-              onChange={(e) => setDireccion({ ...direccion, via_tipo: e.target.value })}
+              onChange={(value) => setDireccion({ ...direccion, via_tipo: value })}
               className="address-select"
-            >
-              {TIPOS_VIA.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
+            />
             <input
               type="text"
               placeholder="Num"
               value={direccion.via_numero}
               onChange={(e) => setDireccion({ ...direccion, via_numero: e.target.value })}
+              onKeyPress={(e) => { if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) e.preventDefault(); }}
               className="address-input-sm"
             />
-            <select
-              name="via_letra"
+            <Dropdown
+              options={[{ value: '', label: 'Letra' }].concat(LETRAS.filter(l => l).map(l => ({ value: l, label: l })))}
               value={direccion.via_letra}
-              onChange={(e) => setDireccion({ ...direccion, via_letra: e.target.value })}
+              onChange={(value) => setDireccion({ ...direccion, via_letra: value })}
               className="address-select-sm"
-            >
-              <option value="">Letter</option>
-              {LETRAS.map(l => l && <option key={l} value={l}>{l}</option>)}
-            </select>
+            />
             <label className="checkbox-label">
               <input
                 type="checkbox"
@@ -338,15 +313,12 @@ const RegisterForm: React.FC = () => {
                 onChange={(e) => setDireccion({ ...direccion, via_bis: e.target.checked })}
               /> Bis
             </label>
-            <select
-              name="via_cardinal"
+            <Dropdown
+              options={[{ value: '', label: 'Card' }].concat(CARDINALES.filter(c => c).map(c => ({ value: c, label: c })))}
               value={direccion.via_cardinal}
-              onChange={(e) => setDireccion({ ...direccion, via_cardinal: e.target.value })}
+              onChange={(value) => setDireccion({ ...direccion, via_cardinal: value })}
               className="address-select-sm"
-            >
-              <option value="">Card</option>
-              {CARDINALES.map(c => c && <option key={c} value={c}>{c}</option>)}
-            </select>
+            />
           </div>
 
           <div className="address-separator">#</div>
@@ -355,29 +327,24 @@ const RegisterForm: React.FC = () => {
           <div className="address-row">
             <input
               type="text"
-              placeholder="Num Generadora"
+              placeholder="Num"
               value={direccion.cruce_numero}
               onChange={(e) => setDireccion({ ...direccion, cruce_numero: e.target.value })}
+              onKeyPress={(e) => { if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) e.preventDefault(); }}
               className="address-input-sm"
             />
-            <select
-              name="cruce_letra"
+            <Dropdown
+              options={[{ value: '', label: 'Letra' }].concat(LETRAS.filter(l => l).map(l => ({ value: l, label: l })))}
               value={direccion.cruce_letra}
-              onChange={(e) => setDireccion({ ...direccion, cruce_letra: e.target.value })}
+              onChange={(value) => setDireccion({ ...direccion, cruce_letra: value })}
               className="address-select-sm"
-            >
-              <option value="">Letra</option>
-              {LETRAS.map(l => l && <option key={l} value={l}>{l}</option>)}
-            </select>
-            <select
-              name="cruce_cardinal"
+            />
+            <Dropdown
+              options={[{ value: '', label: 'Card' }].concat(CARDINALES.filter(c => c).map(c => ({ value: c, label: c })))}
               value={direccion.cruce_cardinal}
-              onChange={(e) => setDireccion({ ...direccion, cruce_cardinal: e.target.value })}
+              onChange={(value) => setDireccion({ ...direccion, cruce_cardinal: value })}
               className="address-select-sm"
-            >
-              <option value="">Card</option>
-              {CARDINALES.map(c => c && <option key={c} value={c}>{c}</option>)}
-            </select>
+            />
           </div>
 
           <div className="address-separator">-</div>
@@ -389,21 +356,20 @@ const RegisterForm: React.FC = () => {
               placeholder="Placa"
               value={direccion.placa_numero}
               onChange={(e) => setDireccion({ ...direccion, placa_numero: e.target.value })}
-              className="address-input-md"
+              onKeyPress={(e) => { if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) e.preventDefault(); }}
+              className="address-input-sm"
             />
           </div>
 
           {/* BLOQUE 4: Complemento */}
           <div className="address-row full-row">
-            <select
-              name="complemento_tipo"
+            <h4>Complemento (Opcional):</h4>
+            <Dropdown
+              options={[{ value: '', label: '(Apto, casa, etc.)' }].concat(TIPO_INMUEBLE.filter(t => t).map(t => ({ value: t, label: t })))}
               value={direccion.complemento_tipo}
-              onChange={(e) => setDireccion({ ...direccion, complemento_tipo: e.target.value })}
+              onChange={(value) => setDireccion({ ...direccion, complemento_tipo: value })}
               className="address-select"
-            >
-              <option value="">Complemento (Apto, etc)</option>
-              {TIPO_INMUEBLE.map(t => t && <option key={t} value={t}>{t}</option>)}
-            </select>
+            />
             <input
               type="text"
               placeholder="Detalle (Ej: 501)"
@@ -419,7 +385,7 @@ const RegisterForm: React.FC = () => {
         </div>
 
         <div className="form-group full-width">
-          <label htmlFor="addressdetails">Detalles de la dirección:</label>
+          <label htmlFor="addressdetails">Detalles de la dirección (Opcional):</label>
           <input
             type="text"
             id="addressdetails"
