@@ -14,8 +14,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart(product.product_id, product.price);
-    // Aquí puedes agregar una notificación o feedback visual
+    addToCart(product.product_id);
     alert('Producto agregado al carrito');
   };
 

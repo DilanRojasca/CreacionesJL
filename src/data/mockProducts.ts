@@ -21,7 +21,7 @@ export const mockProducts: Product[] = [
     price: 95000,
     image_urls: [
       'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800',
-      'https://images.unsplash.com/photo-1591722767187-6cb1c0d8db37?w=800',
+      'https://qvygpicycteuvjjvtpqc.supabase.co/storage/v1/object/public/products_images/616626b96d574.jpeg',
     ],
     tags: ['Joyería', 'Perlas', 'Aretes', 'Elegante'],
   },

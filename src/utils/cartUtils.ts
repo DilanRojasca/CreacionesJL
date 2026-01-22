@@ -2,7 +2,6 @@
 export interface CartItem {
   productId: string;
   addedAt: string; // ISO date string
-  priceAtAdd: number;
 }
 
 const CART_KEY = 'creacionesJL_cart';
@@ -19,7 +18,7 @@ export const getCartItems = (): CartItem[] => {
 };
 
 // Agregar un producto al carrito
-export const addToCart = (productId: string, price: number): void => {
+export const addToCart = (productId: string): void => {
   try {
     const cart = getCartItems();
     
@@ -30,7 +29,6 @@ export const addToCart = (productId: string, price: number): void => {
       const newItem: CartItem = {
         productId,
         addedAt: new Date().toISOString(),
-        priceAtAdd: price
       };
       
       cart.push(newItem);
