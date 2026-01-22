@@ -296,7 +296,7 @@ const RegisterForm: React.FC = () => {
               className="address-select"
             />
             <input
-              type="text"
+              type="number"
               placeholder="Num"
               value={direccion.via_numero}
               onChange={(e) => setDireccion({ ...direccion, via_numero: e.target.value })}
@@ -329,7 +329,7 @@ const RegisterForm: React.FC = () => {
           {/* BLOQUE 2: Cruce */}
           <div className="address-row">
             <input
-              type="text"
+              type="number"
               placeholder="Num"
               value={direccion.cruce_numero}
               onChange={(e) => setDireccion({ ...direccion, cruce_numero: e.target.value })}
@@ -350,7 +350,7 @@ const RegisterForm: React.FC = () => {
             />
             <div className="address-separator">-</div>
             <input
-              type="text"
+              type="number"
               placeholder="Placa"
               value={direccion.placa_numero}
               onChange={(e) => setDireccion({ ...direccion, placa_numero: e.target.value })}
@@ -369,7 +369,7 @@ const RegisterForm: React.FC = () => {
               className="address-select"
             />
             <input
-              type="text"
+              type="number"
               placeholder="Detalle (Ej: 501)"
               value={direccion.complemento_dato}
               onChange={(e) => setDireccion({ ...direccion, complemento_dato: e.target.value })}
