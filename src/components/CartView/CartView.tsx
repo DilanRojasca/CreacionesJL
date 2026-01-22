@@ -2,14 +2,23 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { FaArrowLeft, FaMinus, FaPlus, FaXmark } from 'react-icons/fa6';
-import { mockProducts } from '../../data/mockProducts'; // Para la sección "Complete with"
+import { mockProducts } from '../../data/mockProducts';
 import './CartView.css';
 
 const CartView: React.FC = () => {
-  const { cartItems, removeFromCart, updateQuantity, subtotal } = useCart();
+  const { cartItems, removeFromCart, updateQuantity } = useCart();
 
-  // Productos sugeridos (mock)
-  const suggestedProducts = mockProducts.slice(0, 3);
+  // Obtener productos completos desde mockProducts basándose en los IDs del carrito
+  const cartItemsWithProducts = cartItems.map(item => {
+    const product = mockProducts.find(p => p.product_id === item.productId);
+    return { ...item, product };
+  }).filter(item => item.product); // Filtrar items sin producto (por si acaso)
+
+  // Calcular subtotal desde los items con productos
+  const subtotal = cartItemsWithProducts.reduce(
+    (acc, item) => acc + (item.product!.price * item.quantity), 
+    0
+  );
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -41,15 +50,15 @@ const CartView: React.FC = () => {
         ) : (
           <>
             <div className="cart-items-list">
-              {cartItems.map((item) => (
+              {cartItemsWithProducts.map((item) => (
                 <div key={item.cartItemId} className="cart-item">
                   <div className="cart-item-image">
-                    <img src={item.product.image_urls[0]} alt={item.product.name} />
+                    <img src={item.product!.image_urls[0]} alt={item.product!.name} />
                   </div>
                   <div className="cart-item-details">
                     <div className="cart-item-info-row">
-                      <h3 className="cart-item-name">{item.product.name.toUpperCase()}</h3>
-                      <span className="cart-item-price">{formatPrice(item.product.price * item.quantity)}</span>
+                      <h3 className="cart-item-name">{item.product!.name.toUpperCase()}</h3>
+                      <span className="cart-item-price">{formatPrice(item.product!.price * item.quantity)}</span>
                     </div>
                     {item.selectedSize && (
                       <p className="cart-item-size">TALLA {item.selectedSize.toUpperCase()}</p>
@@ -77,17 +86,6 @@ const CartView: React.FC = () => {
                   </div>
                 </div>
               ))}
-            </div>
-
-            <div className="complete-with-section">
-              <h3 className="complete-with-title">COMPLETE WITH</h3>
-              <div className="suggested-grid">
-                {suggestedProducts.map((prod) => (
-                  <div key={prod.product_id} className="suggested-item">
-                    <img src={prod.image_urls[0]} alt={prod.name} />
-                  </div>
-                ))}
-              </div>
             </div>
 
             <footer className="cart-view-footer">

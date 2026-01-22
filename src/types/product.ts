@@ -11,7 +11,7 @@ export interface Product {
 
 export interface CartItem {
   cartItemId: string; // ID único para el item en el carrito (permite mismo producto con diferentes tallas)
-  product: Product;
+  productId: string; // Solo guardamos el ID del producto
   quantity: number;
   selectedSize?: string;
   addedAt: string;
