@@ -82,8 +82,8 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .btn-medium {
-    padding: 0.6rem 1.5rem;
-    font-size: 0.95rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
   }
 
   .btn-large {
@@ -95,14 +95,15 @@
 @media (max-width: 480px) {
   .btn-small {
     padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
-
+  
   .btn-medium {
     padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
   }
-
+  
   .btn-large {
     padding: 0.7rem 1.5rem;
     font-size: 0.95rem;

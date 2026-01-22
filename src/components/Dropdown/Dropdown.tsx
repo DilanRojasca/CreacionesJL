@@ -13,6 +13,7 @@ interface DropdownProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  id?: string;
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -22,6 +23,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   placeholder = 'Seleccione una opción',
   disabled = false,
   className = '',
+  id,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -61,6 +63,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        id={id}
       >
         <span className="dropdown-value">
           {selectedOption ? selectedOption.label : placeholder}
@@ -68,7 +71,7 @@ const Dropdown: React.FC<DropdownProps> = ({
         <span className="dropdown-arrow">▼</span>
       </button>
       {isOpen && (
-        <ul className="dropdown-menu" role="listbox">
+        <ul className="dropdown-menu" role="listbox" id={`${id}-listbox`}>
           {options.map(option => (
             <li
               key={option.value}
@@ -76,6 +79,7 @@ const Dropdown: React.FC<DropdownProps> = ({
               onClick={() => handleSelect(option.value)}
               role="option"
               aria-selected={option.value === value}
+              id={`${id}-option-${option.value}`}
             >
               {option.label}
             </li>
