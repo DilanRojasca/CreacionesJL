@@ -22,6 +22,7 @@
   overflow-y: auto;
   position: relative;
   box-shadow: var(--shadow-lg);
+  overscroll-behavior: contain;
 }
 
 .product-modal__close {
@@ -327,19 +328,22 @@
 
 @media (max-width: 480px) {
   .product-modal-overlay {
-    padding: 0;
+    padding: var(--spacing-sm);
+    align-items: flex-start;
+    padding-top: var(--spacing-md);
   }
 
   .product-modal {
-    max-height: 100vh;
-    height: 100vh;
-    border-radius: 0;
+    max-height: calc(100vh - var(--spacing-lg));
+    height: auto;
+    border-radius: var(--border-radius-sm);
     max-width: 100%;
+    margin-bottom: var(--spacing-md);
   }
 
   .product-modal__content {
     padding: var(--spacing-sm);
-    padding-top: calc(var(--spacing-lg) + 16px);
+    padding-top: calc(var(--spacing-lg) + 8px);
     gap: var(--spacing-sm);
   }
 
@@ -374,10 +378,6 @@
   .product-modal__add-to-cart {
     padding: 14px;
     font-size: 15px;
-    position: sticky;
-    bottom: 0;
-    background: var(--btn-primary-bg);
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
   }
 }
 
