@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
 import Button from '../Button/Button';
 import { FaUser, FaCartArrowDown, FaArrowRightFromBracket, FaChevronDown } from 'react-icons/fa6';
 import './Navbar.css';
@@ -10,6 +11,7 @@ import './Navbar.css';
  */
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const { totalItems } = useCart();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +53,7 @@ const Navbar: React.FC = () => {
             <>
               <Link to="/cart" className="navbar-cart-button" aria-label="Ver carrito">
                 <FaCartArrowDown />
-                <span className="cart-badge">0</span>
+                {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
               </Link>
 
               <div className="user-menu-container" ref={dropdownRef}>
