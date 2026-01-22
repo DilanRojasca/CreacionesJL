@@ -7,6 +7,7 @@ export const mockProducts: Product[] = [
     name: 'Collar Artesanal de Plata',
     description: 'Hermoso collar artesanal hecho a mano con plata de ley 925. Diseño único e irrepetible. Perfecto para ocasiones especiales o uso diario. Incluye cadena ajustable y cierre de seguridad.',
     price: 150000,
+    sizes: ['Única'],
     image_urls: [
       'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800',
       'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800',
@@ -19,6 +20,7 @@ export const mockProducts: Product[] = [
     name: 'Aretes de Perla Cultivada',
     description: 'Elegantes aretes con perlas cultivadas naturales. Base de plata 925. Diseño clásico que nunca pasa de moda. Ideales para eventos formales.',
     price: 95000,
+    sizes: ['S', 'M', 'L'],
     image_urls: [
       'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800',
       'https://images.unsplash.com/photo-1591722767187-6cb1c0d8db37?w=800',
@@ -30,6 +32,7 @@ export const mockProducts: Product[] = [
     name: 'Pulsera Tejida con Piedras',
     description: 'Pulsera artesanal tejida a mano con piedras naturales de colores. Diseño bohemio y versátil. Tamaño ajustable para cualquier muñeca.',
     price: 45000,
+    sizes: ['Ajustable'],
     image_urls: [
       'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800',
     ],
@@ -40,6 +43,7 @@ export const mockProducts: Product[] = [
     name: 'Anillo de Oro con Zirconia',
     description: 'Anillo de oro de 14K con zirconia cúbica brillante. Diseño moderno y sofisticado. Disponible en diferentes tallas. Perfecto como regalo especial o anillo de compromiso alternativo.',
     price: 280000,
+    sizes: ['6', '7', '8', '9'],
     image_urls: [
       'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800',
       'https://images.unsplash.com/photo-1603561596112-0a132b757442?w=800',

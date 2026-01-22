@@ -6,10 +6,13 @@ export interface Product {
   price: number;
   image_urls: string[];
   tags: string[];
+  sizes?: string[]; // Opcional, para productos con tallas
 }
 
 export interface CartItem {
-  productId: string;
+  cartItemId: string; // ID único para el item en el carrito (permite mismo producto con diferentes tallas)
+  product: Product;
+  quantity: number;
+  selectedSize?: string;
   addedAt: string;
-  priceAtAdd: number;
 }

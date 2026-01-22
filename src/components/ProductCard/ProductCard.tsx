@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Product } from '../../types/product';
-import { addToCart } from '../../utils/cartUtils';
+import { useCart } from '../../context/CartContext';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -11,12 +11,11 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClick }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
+  const { addToCart } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart(product.product_id, product.price);
-    // Aquí puedes agregar una notificación o feedback visual
-    alert('Producto agregado al carrito');
+    addToCart(product);
   };
 
   const nextImage = (e: React.MouseEvent) => {

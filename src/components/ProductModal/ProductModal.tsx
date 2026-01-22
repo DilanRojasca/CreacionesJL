@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Product } from '../../types/product';
-import { addToCart } from '../../utils/cartUtils';
+import { useCart } from '../../context/CartContext';
 import './ProductModal.css';
 
 interface ProductModalProps {
@@ -11,12 +11,18 @@ interface ProductModalProps {
 
 export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const { addToCart } = useCart();
 
   if (!isOpen || !product) return null;
 
   const handleAddToCart = () => {
-    addToCart(product.product_id, product.price);
-    alert('Producto agregado al carrito');
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+      alert('Por favor selecciona una talla');
+      return;
+    }
+    addToCart(product, selectedSize);
+    onClose();
   };
 
   const nextImage = () => {
@@ -110,6 +116,23 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
               <h3 className="product-modal__section-title">Descripción</h3>
               <p className="product-modal__description">{product.description}</p>
             </div>
+
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="product-modal__section">
+                <h3 className="product-modal__section-title">Seleccionar Talla</h3>
+                <div className="product-modal__sizes">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      className={`product-modal__size-btn ${selectedSize === size ? 'active' : ''}`}
+                      onClick={() => setSelectedSize(size)}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {product.tags && product.tags.length > 0 && (
               <div className="product-modal__section">
