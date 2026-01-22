@@ -331,20 +331,26 @@
     padding: var(--spacing-sm);
     align-items: flex-start;
     padding-top: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
   }
 
   .product-modal {
-    max-height: calc(100vh - var(--spacing-lg));
+    max-height: calc(100vh - 3rem);
     height: auto;
     border-radius: var(--border-radius-sm);
     max-width: 100%;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
   }
 
   .product-modal__content {
     padding: var(--spacing-sm);
     padding-top: calc(var(--spacing-lg) + 8px);
+    padding-bottom: var(--spacing-md);
     gap: var(--spacing-sm);
+  }
+
+  .product-modal__info {
+    padding-bottom: var(--spacing-xs);
   }
 
   .product-modal__title {
@@ -378,6 +384,7 @@
   .product-modal__add-to-cart {
     padding: 14px;
     font-size: 15px;
+    margin-top: var(--spacing-sm);
   }
 }
 
