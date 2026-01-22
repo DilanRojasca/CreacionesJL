@@ -130,7 +130,7 @@ export const useAuth = (): AuthContextType => {
 
   if (context === undefined) {
     throw new Error(
-      '❌ useAuth debe ser usado dentro de un AuthProvider. ' +
+      'useAuth debe ser usado dentro de un AuthProvider.' +
       'Asegúrate de envolver tu aplicación con <AuthProvider>'
     );
   }
