@@ -8,11 +8,13 @@ import RegisterForm from './components/RegisterForm/RegisterForm';
 import Footer from './components/Footer/Footer';
 import { Catalog } from './components/Catalog/Catalog';
 import CartView from './components/CartView/CartView';
+import ProfileView from './components/ProfileView/ProfileView';
 import { mockProducts } from './data/mockProducts';
 import './App.css';
 import './components/LoginForm/LoginForm.css';
 import './components/RegisterForm/RegisterForm.css';
 import './components/CartView/CartView.css';
+import './components/ProfileView/ProfileView.css';
 
 function App() {
   return (
@@ -27,6 +29,7 @@ function App() {
             <Route path="/register" element={<RegisterForm />} />
             <Route path="/catalog" element={<Catalog products={mockProducts} />} />
             <Route path="/cart" element={<CartView />} />
+            <Route path="/profile" element={<ProfileView />} />
           </Routes>
           <Footer />
         </div>
