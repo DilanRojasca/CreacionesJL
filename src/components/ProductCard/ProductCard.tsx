@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { Product } from '../../types/product';
-import { useCart } from '../../context/CartContext';
 import './ProductCard.css';
 
 interface ProductCardProps {
@@ -11,12 +10,6 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClick }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
-  const { addToCart } = useCart();
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    addToCart(product);
-  };
 
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -97,13 +90,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
       <div className="product-card__content">
         <h3 className="product-card__name">{product.name}</h3>
         <p className="product-card__price">{formatPrice(product.price)}</p>
-        
-        <button
-          className="product-card__add-to-cart"
-          onClick={handleAddToCart}
-        >
-          Añadir al carrito
-        </button>
       </div>
     </div>
   );

@@ -8,7 +8,6 @@ interface CartContextType {
   updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
-  subtotal: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -47,7 +46,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCartItems(prevItems => {
       // Buscar si ya existe el mismo producto con la misma talla
       const existingItemIndex = prevItems.findIndex(
-        item => item.product.product_id === product.product_id && item.selectedSize === selectedSize
+        item => item.productId === product.product_id && item.selectedSize === selectedSize
       );
 
       if (existingItemIndex !== -1) {
@@ -60,7 +59,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Crear nuevo item si no existe
       const newItem: CartItem = {
         cartItemId: `${product.product_id}-${selectedSize || 'default'}-${Date.now()}`,
-        product,
+        productId: product.product_id, // Solo guardamos el ID
         quantity: 1,
         selectedSize,
         addedAt: new Date().toISOString()
@@ -87,7 +86,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
 
   return (
     <CartContext.Provider
@@ -97,8 +95,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         removeFromCart,
         updateQuantity,
         clearCart,
-        totalItems,
-        subtotal
+        totalItems
       }}
     >
       {children}
