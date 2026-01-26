@@ -15,51 +15,14 @@ export interface LoginResponse {
 
 /**
  * Verifica si un usuario ya existe en Supabase
+ * Esta función ya no se utiliza porque Supabase maneja la validación automáticamente
+ * al intentar registrar un usuario duplicado.
  * 
- * @param email - Correo electrónico a verificar
- * @returns Promise con un boolean indicando si el usuario existe
- * 
- * @example
- * ```typescript
- * const exists = await checkUserExists('usuario@ejemplo.com');
- * if (exists) {
- *   console.log('El usuario ya está registrado');
- * }
- * ```
+ * @deprecated Use directamente el método signUp de Supabase
  */
 export const checkUserExists = async (email: string): Promise<boolean> => {
-  try {
-    // Intentar iniciar sesión con una contraseña aleatoria
-    // Si el usuario existe, obtendremos un error de contraseña incorrecta
-    // Si el usuario no existe, obtendremos un error de usuario no encontrado
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: 'temporary_check_password_' + Math.random(),
-    });
-
-    if (!error) {
-      // Si no hay error (muy improbable), el usuario existe
-      return true;
-    }
-
-    // Verificar el tipo de error
-    // Si es "Invalid login credentials", el usuario existe pero la contraseña es incorrecta
-    // Si es "Email not confirmed", el usuario existe pero no ha confirmado su email
-    if (
-      error.message.includes('Invalid login credentials') ||
-      error.message.includes('Email not confirmed') ||
-      error.message.includes('Invalid')
-    ) {
-      return true;
-    }
-
-    // Cualquier otro error significa que el usuario no existe
-    return false;
-  } catch (error) {
-    console.error('Error al verificar usuario:', error);
-    // En caso de error, asumimos que el usuario no existe para permitir el registro
-    return false;
-  }
+  // Esta función se mantiene por compatibilidad pero ya no se usa
+  return false;
 };
 
 /**
@@ -112,20 +75,6 @@ export const registerUser = async (
   addressJson?: object
 ): Promise<RegisterResponse> => {
   try {
-    // Verificar si el usuario ya existe
-    const userExists = await checkUserExists(email);
-    
-    if (userExists) {
-      return {
-        user: null,
-        session: null,
-        error: {
-          name: 'UserAlreadyExists',
-          message: 'Este correo electrónico ya está registrado',
-        } as AuthError,
-      };
-    }
-
     // Registrar usuario en Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -148,6 +97,42 @@ export const registerUser = async (
         emailRedirectTo: `${window.location.origin}/login`,
       }
     });
+
+    // DETECCIÓN DE USUARIO DUPLICADO:
+    // Cuando Supabase tiene email confirmation habilitado y se intenta registrar
+    // un email duplicado, retorna el usuario existente pero con identities vacío
+    const isDuplicateUser = data.user && data.user.identities && data.user.identities.length === 0;
+    
+    if (isDuplicateUser) {
+      return {
+        user: null,
+        session: null,
+        error: {
+          name: 'UserAlreadyExists',
+          message: 'Este correo electrónico ya está registrado',
+        } as AuthError,
+      };
+    }
+
+    // Verificar otros tipos de errores
+    if (error) {
+      // Supabase retorna diferentes mensajes dependiendo de la configuración
+      if (
+        error.message.includes('User already registered') ||
+        error.message.includes('already been registered') ||
+        error.message.includes('duplicate') ||
+        error.status === 422
+      ) {
+        return {
+          user: null,
+          session: null,
+          error: {
+            name: 'UserAlreadyExists',
+            message: 'Este correo electrónico ya está registrado',
+          } as AuthError,
+        };
+      }
+    }
 
     return {
       user: data.user,
