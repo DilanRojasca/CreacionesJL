@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './RegisterForm.css';
@@ -11,6 +11,12 @@ import { fetchColombiaData, type ColombiaDepartment } from '../../utils/colombia
 const RegisterForm: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
+  
+  // Refs para hacer scroll a los campos con error
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -59,6 +65,20 @@ const RegisterForm: React.FC = () => {
     return emailRegex.test(email);
   };
 
+  const scrollToError = (newErrors: { email: string; password: string; confirmPassword: string }) => {
+    // Hacer scroll al primer campo con error
+    if (newErrors.email && emailRef.current) {
+      emailRef.current.scrollIntoView({ block: 'center' });
+      emailRef.current.focus();
+    } else if (newErrors.password && passwordRef.current) {
+      passwordRef.current.scrollIntoView({ block: 'center' });
+      passwordRef.current.focus();
+    } else if (newErrors.confirmPassword && confirmPasswordRef.current) {
+      confirmPasswordRef.current.scrollIntoView({ block: 'center' });
+      confirmPasswordRef.current.focus();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let newErrors = {
@@ -98,6 +118,11 @@ const RegisterForm: React.FC = () => {
 
     setErrors({ ...newErrors, general: '' });
 
+    if (!isValid) {
+      scrollToError(newErrors);
+      return;
+    }
+
     if (isValid) {
       setIsSubmitting(true);
       setErrors({ ...newErrors, general: '' });
@@ -110,18 +135,22 @@ const RegisterForm: React.FC = () => {
 
         if (error) {
           // Manejar errores específicos de Supabase
-          if (error.message.includes('already registered')) {
-            setErrors({
+          if (error.message.includes('already registered') || error.message.includes('Este correo electrónico ya está registrado')) {
+            const errorState = {
               ...newErrors,
               email: 'Este correo electrónico ya está registrado.',
               general: '',
-            });
+            };
+            setErrors(errorState);
+            scrollToError(errorState);
           } else if (error.message.includes('Password')) {
-            setErrors({
+            const errorState = {
               ...newErrors,
               password: 'La contraseña debe tener al menos 6 caracteres.',
               general: '',
-            });
+            };
+            setErrors(errorState);
+            scrollToError(errorState);
           } else {
             setErrors({
               ...newErrors,
@@ -196,6 +225,7 @@ const RegisterForm: React.FC = () => {
         <div className="form-group full-width">
           <label htmlFor="email">Correo Electrónico:</label>
           <input
+            ref={emailRef}
             type="email"
             id="email"
             name="email"
@@ -208,6 +238,7 @@ const RegisterForm: React.FC = () => {
         <div className="form-group">
           <label htmlFor="password">Contraseña:</label>
           <input
+            ref={passwordRef}
             type="password"
             id="password"
             name="password"
@@ -223,6 +254,7 @@ const RegisterForm: React.FC = () => {
         <div className="form-group">
           <label htmlFor="confirmPassword">Repetir Contraseña:</label>
           <input
+            ref={confirmPasswordRef}
             type="password"
             id="confirmPassword"
             name="confirmPassword"
