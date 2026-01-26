@@ -49,13 +49,13 @@ const Navbar: React.FC = () => {
         </Link>
         
         <div className="navbar-actions">
+          <Link to="/cart" className="navbar-cart-button" aria-label="Ver carrito">
+            <FaCartArrowDown />
+            {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
+          </Link>
+
           {isAuthenticated ? (
             <>
-              <Link to="/cart" className="navbar-cart-button" aria-label="Ver carrito">
-                <FaCartArrowDown />
-                {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
-              </Link>
-
               <div className="user-menu-container" ref={dropdownRef}>
                 <button 
                   className={`user-avatar-button ${isDropdownOpen ? 'active' : ''}`}
