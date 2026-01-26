@@ -19,12 +19,6 @@ export interface LoginResponse {
  * al intentar registrar un usuario duplicado.
  * 
  * @deprecated Use directamente el método signUp de Supabase
- */
-export const checkUserExists = async (email: string): Promise<boolean> => {
-  // Esta función se mantiene por compatibilidad pero ya no se usa
-  return false;
-};
-
 /**
  * Registra un nuevo usuario en Supabase
  * 
