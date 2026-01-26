@@ -330,9 +330,10 @@ const RegisterForm: React.FC = () => {
             <input
               type="number"
               placeholder="Num"
+              min="0"
               value={direccion.via_numero}
               onChange={(e) => setDireccion({ ...direccion, via_numero: e.target.value })}
-              onKeyPress={(e) => { if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) e.preventDefault(); }}
+              onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
               className="address-input-sm"
             />
             <Dropdown
@@ -363,9 +364,10 @@ const RegisterForm: React.FC = () => {
             <input
               type="number"
               placeholder="Num"
+              min="0"
               value={direccion.cruce_numero}
               onChange={(e) => setDireccion({ ...direccion, cruce_numero: e.target.value })}
-              onKeyPress={(e) => { if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) e.preventDefault(); }}
+              onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
               className="address-input-sm"
             />
             <Dropdown
@@ -384,9 +386,10 @@ const RegisterForm: React.FC = () => {
             <input
               type="number"
               placeholder="Placa"
+              min="0"
               value={direccion.placa_numero}
               onChange={(e) => setDireccion({ ...direccion, placa_numero: e.target.value })}
-              onKeyPress={(e) => { if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) e.preventDefault(); }}
+              onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
               className="address-input-sm"
             />
           </div>
@@ -403,8 +406,10 @@ const RegisterForm: React.FC = () => {
             <input
               type="number"
               placeholder="Detalle (Ej: 501)"
+              min="0"
               value={direccion.complemento_dato}
               onChange={(e) => setDireccion({ ...direccion, complemento_dato: e.target.value })}
+              onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
               className="address-input-md"
             />
           </div>
