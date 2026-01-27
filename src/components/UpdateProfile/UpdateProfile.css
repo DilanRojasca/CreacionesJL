@@ -1,0 +1,181 @@
+/* Estilos para UpdateProfile - Usando variables globales */
+.update-profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 180px); /* Ajuste para el navbar/footer */
+  padding: var(--spacing-lg);
+  background-color: var(--bg-primary);
+}
+
+.update-profile-card {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 600px;
+  padding: var(--spacing-xl);
+  border: 1px solid var(--border-light);
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.update-profile-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.update-profile-header h1 {
+  font-size: 2rem;
+  color: var(--color-gold-strong);
+  margin-bottom: var(--spacing-xs);
+  letter-spacing: 1px;
+}
+
+.update-profile-header p {
+  color: var(--text-tertiary);
+  font-size: 0.95rem;
+}
+
+.update-profile-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input {
+  padding: 12px 16px;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  transition: var(--transition-normal);
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--color-gold-strong);
+  background: var(--bg-input-focus);
+  box-shadow: 0 0 0 4px rgba(222, 185, 122, 0.15);
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.btn-update-submit {
+  flex: 2;
+  padding: 14px;
+  border: none;
+  border-radius: var(--border-radius-full);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  font-weight: bold;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+
+.btn-update-submit:hover {
+  transform: var(--btn-primary-hover-transform);
+  box-shadow: var(--shadow-md);
+  filter: brightness(1.05);
+}
+
+.btn-update-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-update-cancel {
+  flex: 1;
+  padding: 14px;
+  border: var(--btn-secondary-border);
+  border-radius: var(--border-radius-full);
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  transition: var(--transition-normal);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-update-cancel:hover {
+  background: var(--btn-secondary-hover-bg);
+  color: var(--btn-secondary-hover-text);
+}
+
+.status-message {
+  grid-column: 1 / -1;
+  padding: 12px;
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.status-message.error {
+  background-color: #fff5f5;
+  color: var(--text-error);
+  border: 1px solid #fed7d7;
+}
+
+.status-message.success {
+  background-color: #f0fff4;
+  color: #2f855a;
+  border: 1px solid #c6f6d5;
+}
+
+@media (max-width: 480px) {
+  .update-profile-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .update-profile-card {
+    padding: var(--spacing-lg);
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+}

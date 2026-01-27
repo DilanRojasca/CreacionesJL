@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../database/supabase';
 import { FaUser, FaPhone, FaLocationDot, FaHouse, FaArrowLeft, FaPen } from 'react-icons/fa6';
@@ -22,6 +22,7 @@ interface UserProfile {
 
 const ProfileView: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -214,7 +215,7 @@ const ProfileView: React.FC = () => {
         </section>
 
         <div className="profile-footer">
-          <button className="btn-edit-profile" onClick={() => alert('Próximamente: Editar perfil')}>
+          <button className="btn-edit-profile" onClick={() => navigate('/update-profile')}>
             <FaPen style={{ marginRight: '8px' }} /> EDITAR PERFIL
           </button>
           <Link to="/" className="btn-back-home">

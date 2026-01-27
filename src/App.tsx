@@ -9,12 +9,14 @@ import Footer from './components/Footer/Footer';
 import { Catalog } from './components/Catalog/Catalog';
 import CartView from './components/CartView/CartView';
 import ProfileView from './components/ProfileView/ProfileView';
+import UpdateProfile from './components/UpdateProfile/UpdateProfile';
 import { mockProducts } from './data/mockProducts';
 import './App.css';
 import './components/LoginForm/LoginForm.css';
 import './components/RegisterForm/RegisterForm.css';
 import './components/CartView/CartView.css';
 import './components/ProfileView/ProfileView.css';
+import './components/UpdateProfile/UpdateProfile.css';
 
 function App() {
   return (
@@ -30,6 +32,7 @@ function App() {
             <Route path="/catalog" element={<Catalog products={mockProducts} />} />
             <Route path="/cart" element={<CartView />} />
             <Route path="/profile" element={<ProfileView />} />
+            <Route path="/update-profile" element={<UpdateProfile />} />
           </Routes>
           <Footer />
         </div>
