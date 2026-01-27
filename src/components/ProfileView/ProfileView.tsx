@@ -41,14 +41,13 @@ const ProfileView: React.FC = () => {
         // Consultar la tabla public.users usando 'user_id' como identificador
         // Especificamos el esquema 'public' explícitamente como se solicitó
         const { data, error } = await supabase
-          .schema('public')
-          .from('users')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
+          .rpc('get_user_profile', { p_user_id: user.id });
+        
+        // data es un array, tomamos el primer elemento
+        const profileData = data && data.length > 0 ? data[0] : null;
 
         if (error) {
-          console.error('Error al consultar public.users:', error.message);
+          console.error('Error al consultar perfil:', error.message);
           
           // Fallback a metadata si hay error (los datos podrían estar incompletos por la limpieza de cookies)
           if (user.user_metadata) {
@@ -66,8 +65,8 @@ const ProfileView: React.FC = () => {
               email: user.email || ''
             });
           }
-        } else if (data) {
-          setProfile(data);
+        } else if (profileData) {
+          setProfile(profileData);
         } else if (user.user_metadata) {
           // Si no hay datos en la tabla pero sí en la sesión
           setProfile({
