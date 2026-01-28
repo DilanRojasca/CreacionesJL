@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../hooks/useNotifications';
 import { supabase } from '../../database/supabase';
 import { FaFloppyDisk, FaXmark } from 'react-icons/fa6';
 import './UpdateProfile.css';
@@ -17,10 +18,10 @@ interface ProfileFormData {
 
 const UpdateProfile: React.FC = () => {
   const { user } = useAuth();
+  const { profileUpdated, error: showError, warning } = useNotifications();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [formData, setFormData] = useState<ProfileFormData>({
     first_name: '',
     last_name: '',
@@ -59,6 +60,7 @@ const UpdateProfile: React.FC = () => {
         }
       } catch (err: any) {
         console.error('Error al cargar perfil:', err.message);
+        showError('No se pudieron cargar los datos del perfil.');
       } finally {
         setInitialLoading(false);
       }
@@ -76,8 +78,13 @@ const UpdateProfile: React.FC = () => {
     e.preventDefault();
     if (!user) return;
 
+    // Validación básica
+    if (!formData.first_name || !formData.last_name) {
+      warning('Nombre y Apellido son obligatorios.');
+      return;
+    }
+
     setLoading(true);
-    setStatus(null);
 
     try {
       const { data, error } = await supabase.rpc('update_profile', {
@@ -88,24 +95,23 @@ const UpdateProfile: React.FC = () => {
         p_address_details: formData.address_details,
         p_city: formData.city,
         p_department: formData.department
-        // No incluir p_country ni p_full_name (no existen en la función)
       });
 
       if (error) {
         console.error('Error RPC:', error.message);
-        setStatus({ type: 'error', message: 'Error: ' + error.message });
+        showError('Error al actualizar: ' + error.message);
       } else {
         console.log('Perfil actualizado con RPC:', data);
-        setStatus({ type: 'success', message: '¡Perfil actualizado con éxito!' });
+        profileUpdated();
 
-        // Esperamos un momento para que el usuario vea el éxito y volvemos al perfil
+        // Volvemos al perfil después de un breve momento
         setTimeout(() => {
           navigate('/profile');
-        }, 1500);
+        }, 1000);
       }
     } catch (err: any) {
       console.error('Error inesperado:', err.message);
-      setStatus({ type: 'error', message: 'Ocurrió un error inesperado al actualizar.' });
+      showError('Ocurrió un error inesperado al actualizar.');
     } finally {
       setLoading(false);
     }
@@ -129,11 +135,6 @@ const UpdateProfile: React.FC = () => {
           <p>Mantén tu información de contacto actualizada</p>
         </header>
 
-        {status && (
-          <div className={`status-message ${status.type}`}>
-            {status.message}
-          </div>
-        )}
 
         <form className="update-profile-form" onSubmit={handleUpdateProfile}>
           <div className="form-group">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Product } from '../../types/product';
 import { useCart } from '../../context/CartContext';
+import { useNotifications } from '../../hooks/useNotifications';
 import './ProductModal.css';
 
 interface ProductModalProps {
@@ -13,6 +14,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const { addToCart } = useCart();
+  const { productAdded, warning } = useNotifications();
 
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -48,10 +50,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
 
   const handleAddToCart = () => {
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      alert('Por favor selecciona una talla');
+      warning('Por favor selecciona una talla');
       return;
     }
     addToCart(product, selectedSize);
+    productAdded(product.name);
     onClose();
   };
 
