@@ -21,6 +21,9 @@ import './components/CartView/CartView.css';
 import './components/ProfileView/ProfileView.css';
 import './components/UpdateProfile/UpdateProfile.css';
 
+/**
+ * Main App component that handles routing and global providers
+ */
 function App() {
   return (
     <AuthProvider>
