@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../database/supabase';
-import { FaUser, FaPhone, FaLocationDot, FaHouse, FaArrowLeft, FaPen } from 'react-icons/fa6';
+import { FaUser, FaPhone, FaLocationDot, FaHouse, FaArrowLeft, FaPen, FaTriangleExclamation } from 'react-icons/fa6';
+import { useNotifications } from '../../hooks/useNotifications';
 import './ProfileView.css';
 
 interface UserProfile {
@@ -23,9 +24,11 @@ interface UserProfile {
 const ProfileView: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const notifications = useNotifications();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -141,6 +144,41 @@ const ProfileView: React.FC = () => {
     );
   }
 
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("¿Estás 100% seguro? Esta acción BORRARÁ tu perfil de forma permanente y no se podrá recuperar.")) {
+      return;
+    }
+
+    if (!window.confirm("Última advertencia: ¿Confirmas la eliminación irreversible?")) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      
+      const { error } = await supabase.rpc('delete_profile');
+
+      if (error) {
+        console.error('Error al eliminar perfil:', error.message);
+        notifications.error('Hubo un error al eliminar tu perfil: ' + error.message);
+        setIsDeleting(false);
+        return;
+      }
+
+      notifications.success('Tu perfil ha sido eliminado permanentemente.');
+
+      // Cerrar sesión inmediatamente
+      await supabase.auth.signOut();
+
+      // Redirigir al login
+      navigate('/login');
+    } catch (err: any) {
+      console.error('Error inesperado:', err.message || err);
+      notifications.error('Ocurrió un error inesperado al eliminar tu cuenta.');
+      setIsDeleting(false);
+    }
+  };
+
   const initials = (profile?.first_name?.[0] || profile?.full_name?.[0] || user.email?.[0] || 'U').toUpperCase();
   const displayName = profile?.full_name || `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || 'Usuario';
 
@@ -211,6 +249,22 @@ const ProfileView: React.FC = () => {
               </p>
             )}
           </div>
+        </section>
+
+        <section className="danger-zone">
+          <h2 className="danger-zone-title">
+            <FaTriangleExclamation /> Zona de Peligro
+          </h2>
+          <p className="danger-zone-description">
+            Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate de que realmente quieres hacer esto.
+          </p>
+          <button 
+            className="btn-delete-account" 
+            onClick={handleDeleteAccount}
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Eliminando...' : 'ELIMINAR CUENTA PERMANENTEMENTE'}
+          </button>
         </section>
 
         <div className="profile-footer">
