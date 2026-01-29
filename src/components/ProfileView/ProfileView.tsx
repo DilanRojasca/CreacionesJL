@@ -156,7 +156,7 @@ const ProfileView: React.FC = () => {
     try {
       setIsDeleting(true);
       
-      const { error } = await supabase.rpc('delete_profile');
+      const { error } = await supabase.rpc('delete_own_account');
 
       if (error) {
         console.error('Error al eliminar perfil:', error.message);
