@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../hooks/useNotifications';
 import './RegisterForm.css';
 import Button from '../Button/Button';
 import Dropdown from '../Dropdown/Dropdown';
@@ -10,6 +11,7 @@ import { fetchColombiaData, type ColombiaDepartment } from '../../utils/colombia
 
 const RegisterForm: React.FC = () => {
   const { register } = useAuth();
+  const { authError } = useNotifications();
   const navigate = useNavigate();
   
   // Refs para hacer scroll a los campos con error
@@ -156,6 +158,10 @@ const RegisterForm: React.FC = () => {
               ...newErrors,
               general: error.message || 'Error al registrar. Por favor, intenta de nuevo.',
             });
+            // También mostrar toast si es error de límite de correos
+            if (error.message.toLowerCase().includes('email rate limit exceeded')) {
+              authError(error);
+            }
           }
         } else {
           // Registro exitoso - limpiar formulario y redirigir

@@ -108,7 +108,19 @@ export const useNotifications = () => {
 
   const authError = (err: string | Error) => {
     const message = typeof err === 'string' ? err : err.message;
-    error(`Error de autenticación: ${message}`);
+    
+    if (message.toLowerCase().includes('email rate limit exceeded')) {
+      emailRateLimitError();
+    } else {
+      error(`Error de autenticación: ${message}`);
+    }
+  };
+
+  const emailRateLimitError = () => {
+    error('Se ha superado el límite de correos electrónicos. Por favor, intenta de nuevo más tarde.', {
+      icon: <FaCircleExclamation />,
+      autoClose: 6000
+    });
   };
 
   const orderCreated = () => {
@@ -132,6 +144,7 @@ export const useNotifications = () => {
     loginSuccess,
     authError,
     orderCreated,
-    profileUpdated
+    profileUpdated,
+    emailRateLimitError
   };
 };
