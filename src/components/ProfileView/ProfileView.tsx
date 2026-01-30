@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../database/supabase';
 import { FaUser, FaPhone, FaLocationDot, FaHouse, FaArrowLeft, FaPen, FaTriangleExclamation } from 'react-icons/fa6';
 import { useNotifications } from '../../hooks/useNotifications';
+import ConfirmationModal from '../modals/ConfirmationModal';
 import './ProfileView.css';
 
 interface UserProfile {
@@ -29,6 +30,8 @@ const ProfileView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showFirstConfirmation, setShowFirstConfirmation] = useState(false);
+  const [showFinalConfirmation, setShowFinalConfirmation] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -145,13 +148,16 @@ const ProfileView: React.FC = () => {
   }
 
   const handleDeleteAccount = async () => {
-    if (!window.confirm("¿Estás 100% seguro? Esta acción BORRARÁ tu perfil de forma permanente y no se podrá recuperar.")) {
-      return;
-    }
+    setShowFirstConfirmation(true);
+  };
 
-    if (!window.confirm("Última advertencia: ¿Confirmas la eliminación irreversible?")) {
-      return;
-    }
+  const handleFirstConfirmation = () => {
+    setShowFirstConfirmation(false);
+    setShowFinalConfirmation(true);
+  };
+
+  const handleFinalConfirmation = async () => {
+    setShowFinalConfirmation(false);
 
     try {
       setIsDeleting(true);
@@ -276,6 +282,28 @@ const ProfileView: React.FC = () => {
           </Link>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={showFirstConfirmation}
+        title="¿Estás 100% seguro?"
+        message="Esta acción BORRARÁ tu perfil de forma permanente y no se podrá recuperar."
+        confirmText="Sí, continuar"
+        cancelText="Cancelar"
+        onConfirm={handleFirstConfirmation}
+        onCancel={() => setShowFirstConfirmation(false)}
+        isDangerous={true}
+      />
+
+      <ConfirmationModal
+        isOpen={showFinalConfirmation}
+        title="Última advertencia"
+        message="¿Confirmas la eliminación irreversible de tu cuenta? Esta acción no se puede deshacer."
+        confirmText="Eliminar permanentemente"
+        cancelText="Cancelar"
+        onConfirm={handleFinalConfirmation}
+        onCancel={() => setShowFinalConfirmation(false)}
+        isDangerous={true}
+      />
     </div>
   );
 };
