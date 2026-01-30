@@ -15,7 +15,7 @@ export const useNotifications = () => {
   
   // Configuración por defecto para los toasts
   const defaultOptions: ToastOptions = {
-    position: "top-right",
+    position: "bottom-right",
     autoClose: 3000,
     hideProgressBar: false,
     closeOnClick: true,
