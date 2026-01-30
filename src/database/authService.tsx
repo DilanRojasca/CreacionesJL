@@ -126,12 +126,43 @@ export const registerUser = async (
           } as AuthError,
         };
       }
+      return { user: null, session: null, error };
+    }
+
+    // --- REFUERZO FRONTEND: Inserción manual en public.users ---
+    // Si el registro fue exitoso, intentamos insertar manualmente por si el trigger falla
+    if (data.user) {
+      try {
+        const { error: insertError } = await supabase
+          .from('users')
+          .upsert({
+            user_id: data.user.id,
+            email: email,
+            first_name: firstName || '',
+            last_name: lastName || '',
+            full_name: `${firstName || ''} ${lastName || ''}`.trim(),
+            phone: phone || '',
+            country: country || '',
+            department: department || '',
+            city: city || '',
+            address_text: address || '',
+            address_details: addressDetails || '',
+          }, { onConflict: 'user_id' });
+
+        if (insertError) {
+          console.warn('Advertencia: El trigger falló y la inserción manual también:', insertError.message);
+          // No retornamos error aquí porque el usuario ya se creó en Auth
+          // y podrá intentar actualizar su perfil después.
+        }
+      } catch (e) {
+        console.error('Error al intentar insertar en public.users:', e);
+      }
     }
 
     return {
       user: data.user,
       session: data.session,
-      error: error,
+      error: null,
     };
   } catch (error) {
     // Manejo de errores inesperados

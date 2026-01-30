@@ -71,6 +71,15 @@ const UpdateProfile: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
+    // Tratamiento especial para el teléfono
+    if (name === 'phone') {
+      const sanitizedValue = value.replace(/\D/g, '');
+      // Recortar a 10 en lugar de bloquear, para permitir editar números largos previos
+      setFormData(prev => ({ ...prev, [name]: sanitizedValue.slice(0, 10) }));
+      return;
+    }
+
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -81,6 +90,11 @@ const UpdateProfile: React.FC = () => {
     // Validación básica
     if (!formData.first_name || !formData.last_name) {
       warning('Nombre y Apellido son obligatorios.');
+      return;
+    }
+
+    if (formData.phone && formData.phone.length !== 10) {
+      warning('El teléfono debe tener exactamente 10 dígitos.');
       return;
     }
 
@@ -164,7 +178,7 @@ const UpdateProfile: React.FC = () => {
           </div>
 
           <div className="form-group full-width">
-            <label htmlFor="phone">Teléfono de Contacto</label>
+            <label htmlFor="phone">Teléfono de Contacto (10 dígitos)</label>
             <input
               type="tel"
               id="phone"

@@ -18,6 +18,7 @@ const RegisterForm: React.FC = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -58,6 +59,7 @@ const RegisterForm: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    phone: '',
     general: '',
   });
 
@@ -67,11 +69,14 @@ const RegisterForm: React.FC = () => {
     return emailRegex.test(email);
   };
 
-  const scrollToError = (newErrors: { email: string; password: string; confirmPassword: string }) => {
+  const scrollToError = (newErrors: { email: string; password: string; confirmPassword: string; phone: string }) => {
     // Hacer scroll al primer campo con error
     if (newErrors.email && emailRef.current) {
       emailRef.current.scrollIntoView({ block: 'center' });
       emailRef.current.focus();
+    } else if (newErrors.phone && phoneRef.current) {
+      phoneRef.current.scrollIntoView({ block: 'center' });
+      phoneRef.current.focus();
     } else if (newErrors.password && passwordRef.current) {
       passwordRef.current.scrollIntoView({ block: 'center' });
       passwordRef.current.focus();
@@ -87,6 +92,7 @@ const RegisterForm: React.FC = () => {
       email: '',
       password: '',
       confirmPassword: '',
+      phone: '',
     };
     let isValid = true;
 
@@ -98,6 +104,14 @@ const RegisterForm: React.FC = () => {
 
     if (!password) {
       newErrors.password = 'La contraseña es obligatoria.';
+      isValid = false;
+    }
+
+    if (!phone) {
+      newErrors.phone = 'El teléfono es obligatorio.';
+      isValid = false;
+    } else if (phone.length !== 10) {
+      newErrors.phone = 'El teléfono debe tener exactamente 10 dígitos.';
       isValid = false;
     }
 
@@ -271,16 +285,21 @@ const RegisterForm: React.FC = () => {
           {errors.confirmPassword && <p className="error-message">{errors.confirmPassword}</p>}
         </div>
         <div className="form-group full-width">
-          <label htmlFor="phone">Teléfono:</label>
+          <label htmlFor="phone">Teléfono (10 dígitos):</label>
           <input
+            ref={phoneRef}
             type="tel"
             id="phone"
             name="phone"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            onKeyPress={(e) => { if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter', '+', '(', ')', '-', ' '].includes(e.key)) e.preventDefault(); }}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, '');
+              setPhone(value.slice(0, 10));
+            }}
+            onKeyPress={(e) => { if (!/[0-9]/.test(e.key)) e.preventDefault(); }}
             required
           />
+          {errors.phone && <p className="error-message">{errors.phone}</p>}
         </div>
         <div className="form-group full-width">
           <label htmlFor="country">País:</label>
