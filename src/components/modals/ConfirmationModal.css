@@ -13,6 +13,12 @@
   animation: fadeIn 0.2s ease;
 }
 
+/* Bloquear scroll en body y html cuando el modal está abierto */
+body.modal-open,
+html.modal-open {
+  overflow: hidden !important;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
