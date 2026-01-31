@@ -3,14 +3,12 @@ import type { Product } from '../../types/product';
 import { ProductCard } from '../ProductCard/ProductCard';
 import { ProductModal } from '../ProductModal/ProductModal';
 import './Catalog.css';
+import { useProducts } from '../../context/ProductsContext';
 
-interface CatalogProps {
-  products: Product[];
-}
-
-export const Catalog: React.FC<CatalogProps> = ({ products }) => {
+export const Catalog: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { products, loading, error } = useProducts();
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
@@ -22,6 +20,9 @@ export const Catalog: React.FC<CatalogProps> = ({ products }) => {
     // Pequeño delay antes de limpiar el producto seleccionado para la animación
     setTimeout(() => setSelectedProduct(null), 200);
   };
+
+  if (loading) return <div>Cargando productos...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="catalog">

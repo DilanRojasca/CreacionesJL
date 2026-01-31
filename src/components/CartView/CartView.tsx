@@ -1,16 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
+import { useProducts } from '../../context/ProductsContext';
 import { FaArrowLeft, FaMinus, FaPlus, FaXmark } from 'react-icons/fa6';
-import { mockProducts } from '../../data/mockProducts';
 import './CartView.css';
 
 const CartView: React.FC = () => {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
+  const { products } = useProducts();
 
-  // Obtener productos completos desde mockProducts basándose en los IDs del carrito
+  // Obtener productos completos desde el contexto basándose en los IDs del carrito
   const cartItemsWithProducts = cartItems.map(item => {
-    const product = mockProducts.find(p => p.product_id === item.productId);
+    const product = products.find(p => p.product_id === item.productId);
     return { ...item, product };
   }).filter(item => item.product); // Filtrar items sin producto (por si acaso)
 
