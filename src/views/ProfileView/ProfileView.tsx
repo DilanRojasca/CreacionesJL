@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../database/supabase';
-import { FaUser, FaPhone, FaLocationDot, FaHouse, FaArrowLeft, FaPen, FaTriangleExclamation } from 'react-icons/fa6';
+import { FaUser, FaPhone, FaLocationDot, FaHouse, FaArrowLeft, FaPen, FaTriangleExclamation, FaLock } from 'react-icons/fa6';
 import { useNotifications } from '../../hooks/useNotifications';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import ChangePasswordForm from '../../components/forms/ChangePasswordForm';
 import './ProfileView.css';
 
 interface UserProfile {
@@ -256,6 +257,19 @@ const ProfileView: React.FC = () => {
             )}
           </div>
         </section>
+
+        <section className="profile-section">
+          <h2 className="profile-section-title">
+            <FaLock /> Seguridad
+          </h2>
+          <div className="security-section" style={{ padding: '1rem' }}>
+             <p className="text-sm text-gray-500 mb-4 dark:text-gray-400">
+               Mantén tu cuenta segura actualizando tu contraseña periódicamente.
+             </p>
+             <ChangePasswordForm />
+          </div>
+        </section>
+
 
         <section className="danger-zone">
           <h2 className="danger-zone-title">
