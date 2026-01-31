@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../hooks/useNotifications';
 import './RegisterForm.css';
-import Button from '../Button/Button';
-import Dropdown from '../Dropdown/Dropdown';
+import Button from '../../components/Button/Button';
+import Dropdown from '../../components/Dropdown/Dropdown';
 import { TIPOS_VIA, LETRAS, CARDINALES, TIPO_INMUEBLE, construirDireccionLegible, type AddressState } from '../../utils/addressUtils';
 import { fetchColombiaData, type ColombiaDepartment } from '../../utils/colombiaData';
 

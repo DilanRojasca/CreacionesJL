@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../database/supabase';
 import { FaUser, FaPhone, FaLocationDot, FaHouse, FaArrowLeft, FaPen, FaTriangleExclamation } from 'react-icons/fa6';
 import { useNotifications } from '../../hooks/useNotifications';
-import ConfirmationModal from '../modals/ConfirmationModal';
+import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import './ProfileView.css';
 
 interface UserProfile {

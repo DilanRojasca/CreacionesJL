@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Product } from '../../types/product';
-import { ProductCard } from '../ProductCard/ProductCard';
-import { ProductModal } from '../ProductModal/ProductModal';
+import { ProductCard } from '../../components/ProductCard/ProductCard';
+import { ProductModal } from '../../components/ProductModal/ProductModal';
 import './Catalog.css';
 import { useProducts } from '../../context/ProductsContext';
 

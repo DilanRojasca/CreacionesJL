@@ -6,20 +6,20 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { ProductsProvider } from './context/ProductsContext';
 import Navbar from './components/Navbar/Navbar';
-import Home from './components/Home/Home';
-import LoginForm from './components/LoginForm/LoginForm';
-import RegisterForm from './components/RegisterForm/RegisterForm';
+import Home from './views/Home/Home';
+import LoginForm from './views/LoginForm/LoginForm';
+import RegisterForm from './views/RegisterForm/RegisterForm';
 import Footer from './components/Footer/Footer';
-import { Catalog } from './components/Catalog/Catalog';
-import CartView from './components/CartView/CartView';
-import ProfileView from './components/ProfileView/ProfileView';
-import UpdateProfile from './components/UpdateProfile/UpdateProfile';
+import { Catalog } from './views/Catalog/Catalog';
+import CartView from './views/CartView/CartView';
+import ProfileView from './views/ProfileView/ProfileView';
+import UpdateProfile from './views/UpdateProfile/UpdateProfile';
 import './App.css';
-import './components/LoginForm/LoginForm.css';
-import './components/RegisterForm/RegisterForm.css';
-import './components/CartView/CartView.css';
-import './components/ProfileView/ProfileView.css';
-import './components/UpdateProfile/UpdateProfile.css';
+import './views/LoginForm/LoginForm.css';
+import './views/RegisterForm/RegisterForm.css';
+import './views/CartView/CartView.css';
+import './views/ProfileView/ProfileView.css';
+import './views/UpdateProfile/UpdateProfile.css';
 
 function App() {
   return (
