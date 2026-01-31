@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../hooks/useNotifications';
-import Button from '../Button/Button';
+import Button from '../../components/Button/Button';
 import './LoginForm.css';
 
 const LoginForm: React.FC = () => {

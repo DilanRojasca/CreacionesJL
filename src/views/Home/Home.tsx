@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Button from '../Button/Button';
+import Button from '../../components/Button/Button';
 import './Home.css';
 
 const Home: React.FC = () => {
