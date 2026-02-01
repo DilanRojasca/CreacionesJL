@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Product } from '../../types/product';
 import { useCart } from '../../context/CartContext';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -13,38 +13,127 @@ interface ProductModalProps {
 export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [imageLoading, setImageLoading] = useState(true);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const [isClosing, setIsClosing] = useState(false);
+  const scrollPositionRef = useRef(0);
   const { addToCart } = useCart();
   const { productAdded, warning } = useNotifications();
+
+  // Reset cuando cambia el producto
+  useEffect(() => {
+    if (product) {
+      setCurrentImageIndex(0);
+      setSelectedSize('');
+      setImageLoading(true);
+    }
+  }, [product]);
+
+  // Reset cuando se cierra el modal
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedSize('');
+      setCurrentImageIndex(0);
+    }
+  }, [isOpen]);
+
+  // Precargar todas las imágenes cuando se abre el modal
+  useEffect(() => {
+    if (isOpen && product) {
+      product.image_urls.forEach((url) => {
+        if (!loadedImages.has(url)) {
+          const img = new Image();
+          img.onload = () => {
+            setLoadedImages(prev => new Set([...prev, url]));
+          };
+          img.onerror = () => {
+            console.error('Error loading image:', url);
+            setLoadedImages(prev => new Set([...prev, url])); // Marcamos como "cargada" para evitar spinner infinito
+          };
+          img.src = url;
+        }
+      });
+
+      // Timeout de seguridad: si después de 5 segundos no carga, forzar mostrar imagen
+      const timeout = setTimeout(() => {
+        setImageLoading(false);
+      }, 5000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isOpen, product, loadedImages]);
+
+  // Verificar si la imagen actual ya está cargada
+  useEffect(() => {
+    if (product && loadedImages.has(product.image_urls[currentImageIndex])) {
+      setImageLoading(false);
+    } else {
+      setImageLoading(true);
+    }
+  }, [currentImageIndex, loadedImages, product]);
 
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) {
-      // Guardar la posición actual del scroll
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
+      // Guardar posición actual del scroll
+      scrollPositionRef.current = window.scrollY;
+      
+      // Prevenir scroll
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollPositionRef.current}px`;
+      document.body.style.width = '100%';
     } else {
-      // Restaurar el scroll al cerrar
-      const scrollY = document.body.style.top;
+      // Desactivar scroll suave temporalmente
+      const htmlElement = document.documentElement;
+      const originalScrollBehavior = htmlElement.style.scrollBehavior;
+      htmlElement.style.scrollBehavior = 'auto';
+      
+      // Restaurar scroll
+      document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
-      document.body.style.overflow = '';
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
-      }
+      
+      // Volver a la posición guardada
+      window.scrollTo(0, scrollPositionRef.current);
+      
+      // Restaurar scroll-behavior después de un tick
+      requestAnimationFrame(() => {
+        htmlElement.style.scrollBehavior = originalScrollBehavior;
+      });
     }
 
-    // Cleanup al desmontar
     return () => {
+      document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
-      document.body.style.overflow = '';
     };
   }, [isOpen]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 300); // Duración de la animación
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleImageError = () => {
+    console.error('Error loading image');
+    setImageLoading(false); // Mostrar imagen aunque haya error
+  };
 
   if (!isOpen || !product) return null;
 
@@ -55,7 +144,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
     }
     addToCart(product, selectedSize);
     productAdded(product.name);
-    onClose();
+    handleClose();
   };
 
   const nextImage = () => {
@@ -82,26 +171,30 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
     }).format(price);
   };
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   return (
-    <div className="product-modal-overlay" onClick={handleBackdropClick}>
+    <div className={`product-modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleBackdropClick}>
       <div className="product-modal">
-        <button className="product-modal__close" onClick={onClose} aria-label="Cerrar">
+        <button className="product-modal__close" onClick={handleClose} aria-label="Cerrar">
           ✕
         </button>
 
         <div className="product-modal__content">
           <div className="product-modal__gallery">
             <div className="product-modal__image-container">
+              {imageLoading && (
+                <div className="product-modal__image-loader">
+                  <div className="spinner"></div>
+                </div>
+              )}
               <img
                 src={product.image_urls[currentImageIndex]}
                 alt={product.name}
                 className="product-modal__image"
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+                loading="eager"
+                decoding="async"
+                style={{ display: imageLoading ? 'none' : 'block' }}
               />
 
               {product.image_urls.length > 1 && (
@@ -134,7 +227,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
                     }`}
                     onClick={() => goToImage(index)}
                   >
-                    <img src={url} alt={`${product.name} ${index + 1}`} />
+                    <img src={url} alt={`${product.name} ${index + 1}`} loading="lazy" />
                   </button>
                 ))}
               </div>

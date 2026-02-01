@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Product } from '../../types/product';
 import './ProductCard.css';
 
@@ -10,6 +10,35 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClick }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Lazy loading con IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' } // Empieza a cargar 100px antes de que sea visible
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Precargar la primera imagen cuando shouldLoad es true
+  useEffect(() => {
+    if (shouldLoad && product.image_urls[0]) {
+      const img = new Image();
+      img.src = product.image_urls[0];
+    }
+  }, [shouldLoad, product.image_urls]);
 
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -42,17 +71,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
   };
 
   return (
-    <div className="product-card" onClick={() => onProductClick(product)}>
+    <div className="product-card" onClick={() => onProductClick(product)} ref={cardRef}>
       <div className="product-card__image-container">
-        {imageLoading && <div className="product-card__image-loader">Cargando...</div>}
+        {imageLoading && shouldLoad && (
+          <div className="product-card__image-loader">Cargando...</div>
+        )}
         
-        <img
-          src={product.image_urls[currentImageIndex]}
-          alt={product.name}
-          className="product-card__image"
-          onLoad={() => setImageLoading(false)}
-          style={{ display: imageLoading ? 'none' : 'block' }}
-        />
+        {shouldLoad ? (
+          <img
+            src={product.image_urls[currentImageIndex]}
+            alt={product.name}
+            className="product-card__image"
+            onLoad={() => setImageLoading(false)}
+            loading="lazy"
+            decoding="async"
+            style={{ display: imageLoading ? 'none' : 'block' }}
+          />
+        ) : (
+          <div className="product-card__image-placeholder" />
+        )}
 
         {product.image_urls.length > 1 && (
           <>
