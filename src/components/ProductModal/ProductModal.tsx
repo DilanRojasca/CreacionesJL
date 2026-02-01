@@ -13,20 +13,64 @@ interface ProductModalProps {
 export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [imageLoading, setImageLoading] = useState(true);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const { addToCart } = useCart();
   const { productAdded, warning } = useNotifications();
+
+  // Reset cuando cambia el producto
+  useEffect(() => {
+    if (product) {
+      setCurrentImageIndex(0);
+      setSelectedSize('');
+      setImageLoading(true);
+    }
+  }, [product]);
+
+  // Precargar todas las imágenes cuando se abre el modal
+  useEffect(() => {
+    if (isOpen && product) {
+      product.image_urls.forEach((url) => {
+        if (!loadedImages.has(url)) {
+          const img = new Image();
+          img.onload = () => {
+            setLoadedImages(prev => new Set([...prev, url]));
+          };
+          img.onerror = () => {
+            console.error('Error loading image:', url);
+            setLoadedImages(prev => new Set([...prev, url])); // Marcamos como "cargada" para evitar spinner infinito
+          };
+          img.src = url;
+        }
+      });
+
+      // Timeout de seguridad: si después de 5 segundos no carga, forzar mostrar imagen
+      const timeout = setTimeout(() => {
+        setImageLoading(false);
+      }, 5000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isOpen, product]);
+
+  // Verificar si la imagen actual ya está cargada
+  useEffect(() => {
+    if (product && loadedImages.has(product.image_urls[currentImageIndex])) {
+      setImageLoading(false);
+    } else {
+      setImageLoading(true);
+    }
+  }, [currentImageIndex, loadedImages, product]);
 
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) {
-      // Guardar la posición actual del scroll
       const scrollY = window.scrollY;
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
     } else {
-      // Restaurar el scroll al cerrar
       const scrollY = document.body.style.top;
       document.body.style.position = '';
       document.body.style.top = '';
@@ -37,7 +81,6 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
       }
     }
 
-    // Cleanup al desmontar
     return () => {
       document.body.style.position = '';
       document.body.style.top = '';
@@ -88,6 +131,15 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
     }
   };
 
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleImageError = () => {
+    console.error('Error loading image');
+    setImageLoading(false); // Mostrar imagen aunque haya error
+  };
+
   return (
     <div className="product-modal-overlay" onClick={handleBackdropClick}>
       <div className="product-modal">
@@ -98,10 +150,20 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
         <div className="product-modal__content">
           <div className="product-modal__gallery">
             <div className="product-modal__image-container">
+              {imageLoading && (
+                <div className="product-modal__image-loader">
+                  <div className="spinner"></div>
+                </div>
+              )}
               <img
                 src={product.image_urls[currentImageIndex]}
                 alt={product.name}
                 className="product-modal__image"
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+                loading="eager"
+                decoding="async"
+                style={{ display: imageLoading ? 'none' : 'block' }}
               />
 
               {product.image_urls.length > 1 && (
@@ -134,7 +196,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
                     }`}
                     onClick={() => goToImage(index)}
                   >
-                    <img src={url} alt={`${product.name} ${index + 1}`} />
+                    <img src={url} alt={`${product.name} ${index + 1}`} loading="lazy" />
                   </button>
                 ))}
               </div>
