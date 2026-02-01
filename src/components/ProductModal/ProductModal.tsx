@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Product } from '../../types/product';
 import { useCart } from '../../context/CartContext';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -15,6 +15,8 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [imageLoading, setImageLoading] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const [isClosing, setIsClosing] = useState(false);
+  const scrollPositionRef = useRef(0);
   const { addToCart } = useCart();
   const { productAdded, warning } = useNotifications();
 
@@ -59,7 +61,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
 
       return () => clearTimeout(timeout);
     }
-  }, [isOpen, product]);
+  }, [isOpen, product, loadedImages]);
 
   // Verificar si la imagen actual ya está cargada
   useEffect(() => {
@@ -73,29 +75,65 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
+      // Guardar posición actual del scroll
+      scrollPositionRef.current = window.scrollY;
+      
+      // Prevenir scroll
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollPositionRef.current}px`;
+      document.body.style.width = '100%';
     } else {
-      const scrollY = document.body.style.top;
+      // Desactivar scroll suave temporalmente
+      const htmlElement = document.documentElement;
+      const originalScrollBehavior = htmlElement.style.scrollBehavior;
+      htmlElement.style.scrollBehavior = 'auto';
+      
+      // Restaurar scroll
+      document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
-      document.body.style.overflow = '';
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
-      }
+      
+      // Volver a la posición guardada
+      window.scrollTo(0, scrollPositionRef.current);
+      
+      // Restaurar scroll-behavior después de un tick
+      requestAnimationFrame(() => {
+        htmlElement.style.scrollBehavior = originalScrollBehavior;
+      });
     }
 
     return () => {
+      document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
-      document.body.style.overflow = '';
     };
   }, [isOpen]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 300); // Duración de la animación
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const handleImageError = () => {
+    console.error('Error loading image');
+    setImageLoading(false); // Mostrar imagen aunque haya error
+  };
 
   if (!isOpen || !product) return null;
 
@@ -106,7 +144,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
     }
     addToCart(product, selectedSize);
     productAdded(product.name);
-    onClose();
+    handleClose();
   };
 
   const nextImage = () => {
@@ -133,25 +171,10 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
     }).format(price);
   };
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  const handleImageLoad = () => {
-    setImageLoading(false);
-  };
-
-  const handleImageError = () => {
-    console.error('Error loading image');
-    setImageLoading(false); // Mostrar imagen aunque haya error
-  };
-
   return (
-    <div className="product-modal-overlay" onClick={handleBackdropClick}>
+    <div className={`product-modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleBackdropClick}>
       <div className="product-modal">
-        <button className="product-modal__close" onClick={onClose} aria-label="Cerrar">
+        <button className="product-modal__close" onClick={handleClose} aria-label="Cerrar">
           ✕
         </button>
 
