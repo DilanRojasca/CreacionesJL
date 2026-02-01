@@ -27,6 +27,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onC
     }
   }, [product]);
 
+  // Reset cuando se cierra el modal
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedSize('');
+      setCurrentImageIndex(0);
+    }
+  }, [isOpen]);
+
   // Precargar todas las imágenes cuando se abre el modal
   useEffect(() => {
     if (isOpen && product) {
