@@ -66,6 +66,21 @@ export const Catalog: React.FC = () => {
     };
   }, [products]);
 
+  // Verificar si hay filtros aplicados
+  const hasActiveFilters = useMemo(() => {
+    return selectedCategory !== 'all' || 
+           selectedSize !== 'all' || 
+           priceRange.min !== 0 || 
+           priceRange.max !== Infinity;
+  }, [selectedCategory, selectedSize, priceRange]);
+
+  // Limpiar todos los filtros
+  const handleClearFilters = () => {
+    setSelectedCategory('all');
+    setSelectedSize('all');
+    setPriceRange({ min: 0, max: Infinity });
+  };
+
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
@@ -76,6 +91,7 @@ export const Catalog: React.FC = () => {
     setTimeout(() => setSelectedProduct(null), 200);
   };
 
+  // ESTOS RETURNS DEBEN ESTAR DESPUÉS DE TODOS LOS HOOKS
   if (loading) return <div>Cargando productos...</div>;
   if (error) return <div>{error}</div>;
 
@@ -84,16 +100,27 @@ export const Catalog: React.FC = () => {
       <div className="catalog__header">
         <h1 className="catalog__title">Catálogo de Productos</h1>
         
-        {/* Botón de Filtros */}
-        <button 
-          className="catalog__filters-toggle"
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          {showFilters ? '✕ Ocultar Filtros' : '⚙ Mostrar Filtros'}
-        </button>
+        {/* Botones de Filtros */}
+        <div className="catalog__filters-controls">
+          <button 
+            className="catalog__filters-toggle"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            {showFilters ? '✕ Ocultar Filtros' : '⚙ Mostrar Filtros'}
+          </button>
+
+          {hasActiveFilters && (
+            <button 
+              className="catalog__filters-clear"
+              onClick={handleClearFilters}
+            >
+              🗑 Limpiar Filtros
+            </button>
+          )}
+        </div>
 
         {/* Filtros - Colapsables */}
-        {showFilters && (
+        <div className={`catalog__filters-wrapper ${showFilters ? 'catalog__filters-wrapper--open' : ''}`}>
           <div className="catalog__filters">
             {/* Filtro de Categoría */}
             <div className="catalog__filter">
@@ -167,7 +194,7 @@ export const Catalog: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+        </div>
 
         <p className="catalog__subtitle">
           {filteredProducts.length} {filteredProducts.length === 1 ? 'producto disponible' : 'productos disponibles'}
