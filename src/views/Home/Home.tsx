@@ -40,15 +40,6 @@ const Home: React.FC = () => {
       <div className="home-content">
         <h1 className="home-title">Creaciones JL</h1>
         <p className="home-tagline">Creamos tus ideas</p>
-        <p className="home-description">
-          Tienda especializada en accesorios exclusivos para mujeres. 
-          Ofrecemos scrunchies, fundas, moños y gorros en satín de alta calidad. 
-          Confeccionamos kimonos personalizados para novias y quinceañeras, 
-          además de gorros en microfibra, satín y térmicos.
-        </p>
-        <p className="home-highlight">
-          Venta al por mayor y al detal
-        </p>
         <div className="home-buttons">
           <Button to="/catalog" variant="primary" size="large">
             Ver Nuestro Catálogo
