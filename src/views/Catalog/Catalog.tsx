@@ -15,6 +15,15 @@ export const Catalog: React.FC = () => {
   const [selectedSize, setSelectedSize] = useState<string>('all');
   const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: Infinity });
   const [showFilters, setShowFilters] = useState(false);
+  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
+    price: true,
+    size: true,
+    category: true
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   // Obtener categorías únicas
   const categories = useMemo(() => {
@@ -102,97 +111,198 @@ export const Catalog: React.FC = () => {
         
         {/* Botones de Filtros */}
         <div className="catalog__filters-controls">
+          <div className="catalog__active-filters">
+            {selectedCategory !== 'all' && (
+              <span className="catalog__filter-chip">
+                {selectedCategory}
+                <button onClick={() => setSelectedCategory('all')} className="catalog__filter-chip-remove">✕</button>
+              </span>
+            )}
+            {selectedSize !== 'all' && (
+              <span className="catalog__filter-chip">
+                Talla: {selectedSize}
+                <button onClick={() => setSelectedSize('all')} className="catalog__filter-chip-remove">✕</button>
+              </span>
+            )}
+            {(priceRange.min !== 0 || priceRange.max !== Infinity) && (
+              <span className="catalog__filter-chip">
+                ${priceRange.min} - ${priceRange.max === Infinity ? 'Max' : priceRange.max}
+                <button onClick={() => setPriceRange({ min: 0, max: Infinity })} className="catalog__filter-chip-remove">✕</button>
+              </span>
+            )}
+          </div>
           <button 
             className="catalog__filters-toggle"
-            onClick={() => setShowFilters(!showFilters)}
+            onClick={() => setShowFilters(true)}
           >
-            {showFilters ? '✕ Ocultar Filtros' : '⚙ Mostrar Filtros'}
+            FILTROS
           </button>
-
-          {hasActiveFilters && (
-            <button 
-              className="catalog__filters-clear"
-              onClick={handleClearFilters}
-            >
-              🗑 Limpiar Filtros
-            </button>
-          )}
         </div>
 
-        {/* Filtros - Colapsables */}
-        <div className={`catalog__filters-wrapper ${showFilters ? 'catalog__filters-wrapper--open' : ''}`}>
-          <div className="catalog__filters">
-            {/* Filtro de Categoría */}
-            <div className="catalog__filter">
-              <label htmlFor="category-filter">Categoría:</label>
-              <select
-                id="category-filter"
-                value={selectedCategory}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className="catalog__select"
+        {/* Overlay */}
+        <div 
+          className={`catalog__overlay ${showFilters ? 'catalog__overlay--visible' : ''}`}
+          onClick={() => setShowFilters(false)}
+        />
+
+        {/* Drawer de Filtros */}
+        <div className={`catalog__drawer ${showFilters ? 'catalog__drawer--open' : ''}`}>
+          <div className="catalog__drawer-header">
+            <h2 className="catalog__drawer-title">FILTROS</h2>
+            <button 
+              className="catalog__drawer-close"
+              onClick={() => setShowFilters(false)}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="catalog__drawer-content">
+            {/* Accordion Precio */}
+            <div className="catalog__accordion">
+              <button 
+                className={`catalog__accordion-header ${openSections.price ? 'active' : ''}`}
+                onClick={() => toggleSection('price')}
               >
-                <option value="all">Todas las categorías</option>
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+                <span>PRECIO</span>
+                <span className="catalog__chevron">›</span>
+              </button>
+              
+              <div className={`catalog__accordion-body ${openSections.price ? 'open' : ''}`}>
+                 <div className="catalog__filter catalog__filter--price">
+                  <div className="catalog__range-slider">
+                    <input 
+                      type="range" 
+                      min={priceInfo.min} 
+                      max={priceInfo.max} 
+                      value={priceRange.min} 
+                      onChange={(e) => {
+                        const val = Math.min(Number(e.target.value), priceRange.max - 1);
+                        setPriceRange(prev => ({ ...prev, min: val }));
+                      }}
+                      className="catalog__range-input catalog__range-input--min"
+                    />
+                    <input 
+                      type="range" 
+                      min={priceInfo.min} 
+                      max={priceInfo.max} 
+                      value={priceRange.max === Infinity ? priceInfo.max : priceRange.max} 
+                      onChange={(e) => {
+                        const val = Math.max(Number(e.target.value), priceRange.min + 1);
+                        setPriceRange(prev => ({ ...prev, max: val }));
+                      }}
+                      className="catalog__range-input catalog__range-input--max"
+                    />
+                    <div className="catalog__range-track"></div>
+                  </div>
+
+                  <div className="catalog__price-inputs">
+                    <div className="catalog__price-field">
+                      <span className="catalog__price-symbol">$</span>
+                      <input
+                        type="number"
+                        min={priceInfo.min}
+                        max={priceInfo.max}
+                        value={priceRange.min}
+                        onChange={(e) => setPriceRange(prev => ({ 
+                          ...prev, 
+                          min: Number(e.target.value) || 0 
+                        }))}
+                        className="catalog__price-input"
+                      />
+                    </div>
+                    <span className="catalog__price-separator">a</span>
+                    <div className="catalog__price-field">
+                      <span className="catalog__price-symbol">$</span>
+                      <input
+                        type="number"
+                        min={priceInfo.min}
+                        max={priceInfo.max}
+                        value={priceRange.max === Infinity ? '' : priceRange.max}
+                        onChange={(e) => setPriceRange(prev => ({ 
+                          ...prev, 
+                          max: Number(e.target.value) || Infinity 
+                        }))}
+                        className="catalog__price-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Filtro de Talla - Solo visible si hay categoría seleccionada */}
-            {selectedCategory !== 'all' && availableSizes.length > 0 && (
-              <div className="catalog__filter">
-                <label htmlFor="size-filter">Talla:</label>
-                <select
-                  id="size-filter"
-                  value={selectedSize}
-                  onChange={(e) => setSelectedSize(e.target.value)}
-                  className="catalog__select"
-                >
-                  <option value="all">Todas las tallas</option>
-                  {availableSizes.map(size => (
-                    <option key={size} value={size}>{size}</option>
-                  ))}
-                </select>
+            {/* Accordion Talla */}
+            <div className="catalog__accordion">
+              <button 
+                className={`catalog__accordion-header ${openSections.size ? 'active' : ''}`}
+                onClick={() => toggleSection('size')}
+              >
+                <span>TALLA</span>
+                <span className="catalog__chevron">›</span>
+              </button>
+              
+              <div className={`catalog__accordion-body ${openSections.size ? 'open' : ''}`}>
+                <div className="catalog__filter">
+                  <select
+                    id="size-filter"
+                    value={selectedSize}
+                    onChange={(e) => setSelectedSize(e.target.value)}
+                    className="catalog__select"
+                  >
+                    <option value="all">Todas las tallas</option>
+                    {availableSizes.map(size => (
+                      <option key={size} value={size}>{size}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
+            </div>
+
+            {/* Accordion Categoría (simulando Disponibilidad o estructura similar) */}
+            <div className="catalog__accordion">
+              <button 
+                className={`catalog__accordion-header ${openSections.category ? 'active' : ''}`}
+                onClick={() => toggleSection('category')}
+              >
+                <span>CATEGORÍA</span>
+                <span className="catalog__chevron">›</span>
+              </button>
+              
+              <div className={`catalog__accordion-body ${openSections.category ? 'open' : ''}`}>
+                <div className="catalog__filter">
+                  <select
+                    id="category-filter"
+                    value={selectedCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="catalog__select"
+                  >
+                    <option value="all">Todas las categorías</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+             {hasActiveFilters && (
+              <button 
+                className="catalog__filters-clear"
+                onClick={handleClearFilters}
+                style={{ marginTop: '1rem', width: '100%' }}
+              >
+                Limpiar Filtros
+              </button>
             )}
+          </div>
 
-            {/* Filtro de Precio */}
-            <div className="catalog__filter catalog__filter--price">
-              <label>Precio: ${priceRange.min.toLocaleString()} - ${priceRange.max === Infinity ? priceInfo.max.toLocaleString() : priceRange.max.toLocaleString()}</label>
-              <div className="catalog__price-inputs">
-                <div className="catalog__price-field">
-                  <span className="catalog__price-symbol">$</span>
-                  <input
-                    type="number"
-                    placeholder="Mínimo"
-                    min={priceInfo.min}
-                    max={priceInfo.max}
-                    value={priceRange.min}
-                    onChange={(e) => setPriceRange(prev => ({ 
-                      ...prev, 
-                      min: Number(e.target.value) || 0 
-                    }))}
-                    className="catalog__price-input"
-                  />
-                </div>
-                <span>-</span>
-                <div className="catalog__price-field">
-                  <span className="catalog__price-symbol">$</span>
-                  <input
-                    type="number"
-                    placeholder="Máximo"
-                    min={priceInfo.min}
-                    max={priceInfo.max}
-                    value={priceRange.max === Infinity ? '' : priceRange.max}
-                    onChange={(e) => setPriceRange(prev => ({ 
-                      ...prev, 
-                      max: Number(e.target.value) || Infinity 
-                    }))}
-                    className="catalog__price-input"
-                  />
-                </div>
-              </div>
-            </div>
+          <div className="catalog__drawer-footer">
+            <button 
+              className="catalog__apply-btn"
+              onClick={() => setShowFilters(false)}
+            >
+              APLICAR
+            </button>
           </div>
         </div>
 
