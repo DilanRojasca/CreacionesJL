@@ -12,30 +12,30 @@ import './Navbar.css';
  */
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const [isAdminState, setIsAdminState] = useState(false);
-
-    useEffect(() => {
-      const checkAdmin = async () => {
-        if (user?.id) {
-          try {
-            const { data, error } = await supabase.rpc('is_admin', { p_user_id: user.id });
-            if (error) {
-              console.error('Error checking admin status:', error);
-              setIsAdminState(false);
-            } else {
-              setIsAdminState(data || false);
-            }
-          } catch (error) {
-            console.error('Error calling is_admin:', error);
-            setIsAdminState(false);
-          }
-        }
-      };
-      checkAdmin();
-    }, [user?.id]);
   const { totalItems } = useCart();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isStaffState, setIsStaffState] = useState(false);
+
+    useEffect(() => {
+      const checkStaff = async () => {
+        if (user?.id) {
+          try {
+            const { data, error } = await supabase.rpc('is_staff');
+            if (error) {
+              console.error('Error checking staff status:', error);
+              setIsStaffState(false);
+            } else {
+              setIsStaffState(data || false);
+            }
+          } catch (error) {
+            console.error('Error calling is_staff:', error);
+            setIsStaffState(false);
+          }
+        }
+      };
+      checkStaff();
+    }, [user?.id]);
 
   // Cerrar el dropdown al hacer click fuera
   useEffect(() => {
@@ -108,7 +108,7 @@ const Navbar: React.FC = () => {
                   </div>
                 )}
               </div>
-            {isAdminState ? (
+            {isStaffState ? (
               <div className="admin-link-container">
                 <Button to="/admin" variant="tertiary" size="small">Panel de administrador</Button>
               </div>

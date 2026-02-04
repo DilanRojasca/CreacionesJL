@@ -17,6 +17,7 @@ const Catalog = lazy(() => import('./views/Catalog/Catalog').then(m => ({ defaul
 const CartView = lazy(() => import('./views/CartView/CartView'));
 const ProfileView = lazy(() => import('./views/ProfileView/ProfileView'));
 const UpdateProfile = lazy(() => import('./views/UpdateProfile/UpdateProfile'));
+const AdminView = lazy(() => import('./views/AdminView/AdminView'));
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                   <Route path="/cart" element={<CartView />} />
                   <Route path="/profile" element={<ProfileView />} />
                   <Route path="/update-profile" element={<UpdateProfile />} />
+                  <Route path="/admin" element={<AdminView />} />
                 </Routes>
               </Suspense>
               <Footer />
