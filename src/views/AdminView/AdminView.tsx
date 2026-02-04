@@ -99,7 +99,7 @@ const AdminView: React.FC = () => {
       setOrderItems(items || []);
 
       // Fetch product details for each item
-      const productIds = [...new Set(items?.map((item: OrderItem) => item.product_id) || [])];
+      const productIds: string[] = [...new Set((items as OrderItem[])?.map((item: OrderItem) => item.product_id) || [])];
       const productsData: Record<string, Product> = {};
 
       for (const productId of productIds) {
