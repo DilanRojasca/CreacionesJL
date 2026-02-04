@@ -51,6 +51,8 @@ const Navbar: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      window.location.reload();
+      window.location.href = '/';
       setIsDropdownOpen(false);
     } catch (error) {
       console.error('Error logging out:', error);
