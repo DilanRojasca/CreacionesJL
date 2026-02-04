@@ -54,6 +54,27 @@ const AdminView: React.FC = () => {
   const [customerInfo, setCustomerInfo] = useState<UserProfile | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [isCustomerInfoExpanded, setIsCustomerInfoExpanded] = useState(false);
+  const [isVerifyingAccess, setIsVerifyingAccess] = useState(true);
+
+useEffect(() => {
+    const checkStaffAccess = async () => {
+        try {
+            setIsVerifyingAccess(true);
+            const { data, error } = await supabase.rpc('is_staff');
+            
+            if (error || !data) {
+                window.location.href = '/';
+            } else {
+                setIsVerifyingAccess(false);
+            }
+        } catch (err) {
+            console.error('Error checking staff access:', err);
+            window.location.href = '/';
+        }
+    };
+
+    checkStaffAccess();
+}, []);
 
   useEffect(() => {
     fetchOrders();
@@ -389,6 +410,17 @@ const AdminView: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+      </div>
+    );
+  }
+
+  if (isVerifyingAccess) {
+    return (
+      <div className="admin-container">
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Verificando acceso...</p>
         </div>
       </div>
     );
