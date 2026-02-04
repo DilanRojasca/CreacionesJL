@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import Button from '../Button/Button';
+import { supabase } from '../../database/supabase';
 import { FaUser, FaCartArrowDown, FaArrowRightFromBracket, FaChevronDown } from 'react-icons/fa6';
 import './Navbar.css';
 
@@ -11,6 +12,27 @@ import './Navbar.css';
  */
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
+  const [isAdminState, setIsAdminState] = useState(false);
+
+    useEffect(() => {
+      const checkAdmin = async () => {
+        if (user?.id) {
+          try {
+            const { data, error } = await supabase.rpc('is_admin', { p_user_id: user.id });
+            if (error) {
+              console.error('Error checking admin status:', error);
+              setIsAdminState(false);
+            } else {
+              setIsAdminState(data || false);
+            }
+          } catch (error) {
+            console.error('Error calling is_admin:', error);
+            setIsAdminState(false);
+          }
+        }
+      };
+      checkAdmin();
+    }, [user?.id]);
   const { totalItems } = useCart();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -53,7 +75,6 @@ const Navbar: React.FC = () => {
             <FaCartArrowDown />
             {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
           </Link>
-
           {isAuthenticated ? (
             <>
               <div className="user-menu-container" ref={dropdownRef}>
@@ -87,7 +108,13 @@ const Navbar: React.FC = () => {
                   </div>
                 )}
               </div>
+            {isAdminState ? (
+              <div className="admin-link-container">
+                <Button to="/admin" variant="tertiary" size="small">Panel de administrador</Button>
+              </div>
+            ) : null}
             </>
+            
           ) : (
             <div className="navbar-buttons">
               <Button to="/login" variant="tertiary" size="medium">
