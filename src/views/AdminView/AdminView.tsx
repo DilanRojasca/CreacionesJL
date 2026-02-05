@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../database/supabase';
 import { useNotifications } from '../../hooks/useNotifications';
-import { FaBox, FaUser, FaCopy, FaArrowLeft, FaTruck, FaCheckCircle, FaBan, FaCreditCard, FaClock, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaBox, FaUser, FaCopy, FaArrowLeft, FaTruck, FaCheckCircle, FaBan, FaCreditCard, FaClock } from 'react-icons/fa';
 import Button from '../../components/Button/Button';
 import './AdminView.css';
 
@@ -53,7 +53,7 @@ const AdminView: React.FC = () => {
   const [products, setProducts] = useState<Record<string, Product>>({});
   const [customerInfo, setCustomerInfo] = useState<UserProfile | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  const [isCustomerInfoExpanded, setIsCustomerInfoExpanded] = useState(false);
+  const [isCustomerDrawerOpen, setIsCustomerDrawerOpen] = useState(false);
   const [isVerifyingAccess, setIsVerifyingAccess] = useState(true);
 
 useEffect(() => {
@@ -314,17 +314,42 @@ useEffect(() => {
                   </p>
                 </div>
 
-                {/* Customer Info */}
+                {/* Customer Info Section (Drawer Trigger) */}
                 {customerInfo && (
-                  <div className="detail-section">
-                    <div 
-                      className="collapsible-header"
-                      onClick={() => setIsCustomerInfoExpanded(!isCustomerInfoExpanded)}
-                    >
-                      <h2><FaUser /> Información del Cliente</h2>
-                      {isCustomerInfoExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                  <div className="detail-section customer-trigger-section">
+                    <h2><FaUser /> Información del Cliente</h2>
+                    <div className="customer-preview-compact">
+                      <p><strong>{customerInfo.first_name} {customerInfo.last_name}</strong></p>
+                      <p>{customerInfo.email}</p>
                     </div>
-                    <div className={`collapsible-content ${isCustomerInfoExpanded ? 'expanded' : 'collapsed'}`}>
+                    <Button 
+                      variant="secondary" 
+                      onClick={() => setIsCustomerDrawerOpen(true)}
+                    >
+                      <FaUser /> Ver Detalles Completos
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Customer Info Drawer Overlay & Content */}
+              {customerInfo && (
+                <>
+                  <div 
+                    className={`drawer-overlay ${isCustomerDrawerOpen ? 'open' : ''}`}
+                    onClick={() => setIsCustomerDrawerOpen(false)}
+                  />
+                  <div className={`customer-drawer ${isCustomerDrawerOpen ? 'open' : ''}`}>
+                    <div className="drawer-header">
+                      <h2><FaUser /> Perfil del Cliente</h2>
+                      <button 
+                        className="close-drawer-btn"
+                        onClick={() => setIsCustomerDrawerOpen(false)}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                    <div className="drawer-body">
                       <div className="customer-info-grid">
                         <div className="info-item">
                           <span className="label">Nombre:</span>
@@ -362,9 +387,14 @@ useEffect(() => {
                         )}
                       </div>
                     </div>
+                    <div className="drawer-footer">
+                      <Button variant="secondary" onClick={() => setIsCustomerDrawerOpen(false)}>
+                        Cerrar
+                      </Button>
+                    </div>
                   </div>
-                )}
-              </div>
+                </>
+              )}
 
               {/* Right Column: Order Items */}
               <div className="detail-right-column">
@@ -479,6 +509,7 @@ useEffect(() => {
           </button>
         </div>
       </div>
+
 
       {/* Orders List */}
       {loading ? (
