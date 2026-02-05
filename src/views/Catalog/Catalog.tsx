@@ -231,6 +231,32 @@ export const Catalog: React.FC = () => {
               </div>
             </div>
 
+            {/* Accordion Categoría (simulando Disponibilidad o estructura similar) */}
+            <div className="catalog__accordion">
+              <button 
+                className={`catalog__accordion-header ${openSections.category ? 'active' : ''}`}
+                onClick={() => toggleSection('category')}
+              >
+                <span>CATEGORÍA</span>
+                <span className="catalog__chevron">›</span>
+              </button>
+              
+              <div className={`catalog__accordion-body ${openSections.category ? 'open' : ''}`}>
+                <div className="catalog__filter">
+                  <select
+                    id="category-filter"
+                    value={selectedCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="catalog__select"
+                  >
+                    <option value="all">Todas las categorías</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
             {/* Accordion Talla */}
             <div className="catalog__accordion">
               <button 
@@ -258,31 +284,6 @@ export const Catalog: React.FC = () => {
               </div>
             </div>
 
-            {/* Accordion Categoría (simulando Disponibilidad o estructura similar) */}
-            <div className="catalog__accordion">
-              <button 
-                className={`catalog__accordion-header ${openSections.category ? 'active' : ''}`}
-                onClick={() => toggleSection('category')}
-              >
-                <span>CATEGORÍA</span>
-                <span className="catalog__chevron">›</span>
-              </button>
-              
-              <div className={`catalog__accordion-body ${openSections.category ? 'open' : ''}`}>
-                <div className="catalog__filter">
-                  <select
-                    id="category-filter"
-                    value={selectedCategory}
-                    onChange={(e) => handleCategoryChange(e.target.value)}
-                    className="catalog__select"
-                  >
-                    <option value="all">Todas las categorías</option>
-                    {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
             </div>
 
              {hasActiveFilters && (
