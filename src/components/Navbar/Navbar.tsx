@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import Button from '../Button/Button';
 import { supabase } from '../../database/supabase';
-import { FaUser, FaCartArrowDown, FaArrowRightFromBracket, FaChevronDown } from 'react-icons/fa6';
+import { FaUser, FaCartArrowDown, FaArrowRightFromBracket, FaChevronDown, FaShieldHalved } from 'react-icons/fa6';
 import './Navbar.css';
 
 /**
@@ -103,6 +103,11 @@ const Navbar: React.FC = () => {
                     <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                       <FaUser className="item-icon-sigma" /> Perfil
                     </Link>
+                    {isStaffState ? (
+                      <Link to="/admin" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
+                        <FaShieldHalved className="item-icon-sigma" /> Panel de administrador
+                      </Link>
+                    ) : null}
                     <div className="dropdown-divider"></div>
                     <button className="dropdown-item logout-button" onClick={handleLogout}>
                       <FaArrowRightFromBracket className="item-icon-sigma" /> Cerrar sesión
@@ -110,11 +115,6 @@ const Navbar: React.FC = () => {
                   </div>
                 )}
               </div>
-            {isStaffState ? (
-              <div className="admin-link-container">
-                <Button to="/admin" variant="tertiary" size="small">Panel de administrador</Button>
-              </div>
-            ) : null}
             </>
             
           ) : (
