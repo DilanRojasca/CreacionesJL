@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import Button from '../Button/Button';
 import { supabase } from '../../database/supabase';
-import { FaUser, FaCartArrowDown, FaArrowRightFromBracket, FaChevronDown, FaShieldHalved, FaShield } from 'react-icons/fa6';
+import { FaUser, FaCartArrowDown, FaArrowRightFromBracket, FaChevronDown, FaShieldHalved } from 'react-icons/fa6';
 import './Navbar.css';
 
 /**
