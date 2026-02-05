@@ -11,13 +11,18 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/web
 const uploadProductSchema = z.object({
   name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
   description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres'),
-  price: z.number({ required_error: 'El precio es requerido', invalid_type_error: 'Ingresa un precio válido' }).positive('El precio debe ser mayor a 0'),
+  price: z.number().or(z.undefined()).refine((val) => val !== undefined && val > 0, {
+    message: 'El precio debe ser mayor a 0',
+  }),
   images: z
     .array(z.instanceof(File))
     .min(1, 'Debes subir al menos una imagen')
     .max(5, 'Máximo 5 imágenes'),
   tags: z.array(z.string()).min(1, 'Debes agregar al menos una etiqueta'),
   sizes: z.array(z.string()).min(1, 'Debes agregar al menos una talla'),
+}).refine((data) => data.price !== undefined, {
+  message: 'El precio es requerido',
+  path: ['price'],
 });
 
 type UploadProductFormData = z.infer<typeof uploadProductSchema>;
@@ -239,7 +244,10 @@ export const UploadProductModal: React.FC<UploadProductModalProps> = ({
 
   const onSubmit = async (data: UploadProductFormData) => {
     try {
-      await uploadProduct(data);
+      await uploadProduct({
+        ...data,
+        price: data.price!
+      });
       onSuccess?.();
       onClose();
     } catch (err) {
