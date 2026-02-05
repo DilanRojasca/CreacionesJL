@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Product } from '../../types/product';
 import { ProductCard } from '../../components/ProductCard/ProductCard';
 import { ProductModal } from '../../components/ProductModal/ProductModal';
@@ -24,6 +24,20 @@ export const Catalog: React.FC = () => {
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
+
+  // Bloquear scroll del body cuando los filtros están abiertos (solo mobile)
+  useEffect(() => {
+    if (showFilters) {
+      document.body.classList.add('catalog-filters-open');
+    } else {
+      document.body.classList.remove('catalog-filters-open');
+    }
+
+    // Cleanup al desmontar
+    return () => {
+      document.body.classList.remove('catalog-filters-open');
+    };
+  }, [showFilters]);
 
   // Obtener categorías únicas
   const categories = useMemo(() => {
@@ -256,7 +270,7 @@ export const Catalog: React.FC = () => {
                   </select>
                 </div>
               </div>
-              
+
             {/* Accordion Talla */}
             <div className="catalog__accordion">
               <button 

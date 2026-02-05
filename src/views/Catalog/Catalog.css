@@ -404,6 +404,16 @@
   margin-top: var(--spacing-lg);
 }
 
+/* === BLOQUEO DE SCROLL EN MOBILE === */
+/* Solo bloquear el scroll en viewports pequeños donde el drawer cubre toda la pantalla */
+@media (max-width: 768px) {
+  body.catalog-filters-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 1024px) {
   .catalog {
