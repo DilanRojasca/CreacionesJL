@@ -88,6 +88,7 @@ body,
   --shadow-sm: 0 2px 8px rgba(222, 185, 122, 0.2);
   --shadow-md: 0 4px 15px rgba(222, 185, 122, 0.3);
   --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 12px 35px rgba(0, 0, 0, 0.4);
   --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.2);
 
   /* Transiciones */
