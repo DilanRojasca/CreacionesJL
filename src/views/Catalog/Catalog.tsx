@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Product } from '../../types/product';
 import { ProductCard } from '../../components/ProductCard/ProductCard';
 import { ProductModal } from '../../components/ProductModal/ProductModal';
@@ -24,6 +24,20 @@ export const Catalog: React.FC = () => {
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
+
+  // Bloquear scroll del body cuando los filtros están abiertos (solo mobile)
+  useEffect(() => {
+    if (showFilters) {
+      document.body.classList.add('catalog-filters-open');
+    } else {
+      document.body.classList.remove('catalog-filters-open');
+    }
+
+    // Cleanup al desmontar
+    return () => {
+      document.body.classList.remove('catalog-filters-open');
+    };
+  }, [showFilters]);
 
   // Obtener categorías únicas
   const categories = useMemo(() => {
@@ -231,6 +245,32 @@ export const Catalog: React.FC = () => {
               </div>
             </div>
 
+            {/* Accordion Categoría (simulando Disponibilidad o estructura similar) */}
+            <div className="catalog__accordion">
+              <button 
+                className={`catalog__accordion-header ${openSections.category ? 'active' : ''}`}
+                onClick={() => toggleSection('category')}
+              >
+                <span>CATEGORÍA</span>
+                <span className="catalog__chevron">›</span>
+              </button>
+              
+              <div className={`catalog__accordion-body ${openSections.category ? 'open' : ''}`}>
+                <div className="catalog__filter">
+                  <select
+                    id="category-filter"
+                    value={selectedCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    className="catalog__select"
+                  >
+                    <option value="all">Todas las categorías</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
             {/* Accordion Talla */}
             <div className="catalog__accordion">
               <button 
@@ -258,31 +298,6 @@ export const Catalog: React.FC = () => {
               </div>
             </div>
 
-            {/* Accordion Categoría (simulando Disponibilidad o estructura similar) */}
-            <div className="catalog__accordion">
-              <button 
-                className={`catalog__accordion-header ${openSections.category ? 'active' : ''}`}
-                onClick={() => toggleSection('category')}
-              >
-                <span>CATEGORÍA</span>
-                <span className="catalog__chevron">›</span>
-              </button>
-              
-              <div className={`catalog__accordion-body ${openSections.category ? 'open' : ''}`}>
-                <div className="catalog__filter">
-                  <select
-                    id="category-filter"
-                    value={selectedCategory}
-                    onChange={(e) => handleCategoryChange(e.target.value)}
-                    className="catalog__select"
-                  >
-                    <option value="all">Todas las categorías</option>
-                    {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
             </div>
 
              {hasActiveFilters && (
