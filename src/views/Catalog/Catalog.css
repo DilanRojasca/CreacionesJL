@@ -116,7 +116,8 @@
   right: 0;
   width: 100%;
   max-width: 400px;
-  height: 100vh;
+  height: 100vh; /* fallback */
+  height: 100dvh; /* dynamic viewport height - se ajusta con la barra del navegador */
   background-color: var(--bg-primary);
   z-index: 999;
   transform: translateX(100%);
@@ -166,11 +167,18 @@
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-lg) var(--spacing-xl);
+  /* Espacio extra en mobile para que el contenido no quede detrás del footer */
+  padding-bottom: calc(var(--spacing-lg) + 80px);
 }
 
 .catalog__drawer-footer {
   padding: var(--spacing-lg) var(--spacing-xl);
   border-top: 1px solid var(--border-light);
+  background-color: var(--bg-primary);
+  /* Hacer el footer sticky para que siempre sea visible */
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
 }
 
 /* === ACCORDION === */
@@ -448,6 +456,9 @@
 
   .catalog__drawer {
     max-width: 85%;
+    /* En mobile, usar el viewport más pequeño para garantizar que el footer sea visible */
+    height: 100vh; /* fallback */
+    height: 100svh; /* small viewport height - siempre visible incluso con barra de navegador */
   }
 
   .catalog__grid {
