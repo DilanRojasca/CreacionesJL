@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../database/supabase';
 import { useNotifications } from '../../hooks/useNotifications';
-import { FaBox, FaUser, FaCopy, FaArrowLeft, FaTruck, FaCheckCircle, FaBan, FaCreditCard, FaClock, FaChevronDown, FaChevronUp, FaPlus } from 'react-icons/fa';
+import { FaBox, FaUser, FaCopy, FaArrowLeft, FaTruck, FaCheckCircle, FaBan, FaCreditCard, FaClock, FaPlus } from 'react-icons/fa';
 import Button from '../../components/Button/Button';
 import { UploadProductModal } from '../../components/modals/UploadProductModal';
 import './AdminView.css';
