@@ -209,6 +209,19 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  height: 100%;
+}
+
+/* Ensure the last section on the left grows to match the right column height */
+.detail-left-column .detail-section:last-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Push the button to the bottom of the section for perfect alignment */
+.customer-trigger-section {
+  justify-content: space-between;
 }
 
 .detail-right-column {
@@ -221,6 +234,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  max-height: calc(85vh - 4rem - 60px); /* Account for header and padding */
 }
 
 /* Desktop: 2 columns layout */
@@ -228,6 +242,11 @@
   .detail-content {
     grid-template-columns: 1fr 1.2fr;
     grid-template-rows: auto;
+    max-height: 85vh; /* Limit overall height to trigger internal scrolls */
+  }
+  
+  .detail-right-column {
+    overflow: hidden; /* Prevent parent overflow */
   }
 }
 
@@ -429,7 +448,29 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  flex: 1; /* Stretch to fill space and push total down */
+  flex: 1;
+  overflow-y: auto; /* Enable internal scroll */
+  padding-right: 0.5rem; /* Space for scrollbar */
+  margin-bottom: 1rem;
+}
+
+/* Custom scrollbar for better aesthetics */
+.order-items-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.order-items-list::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+}
+
+.order-items-list::-webkit-scrollbar-thumb {
+  background: var(--color-beige-pink);
+  border-radius: 10px;
+}
+
+.order-items-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brown-soft);
 }
 
 .order-item-card {
