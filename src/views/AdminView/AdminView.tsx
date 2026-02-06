@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../database/supabase';
 import { useNotifications } from '../../hooks/useNotifications';
-import { FaBox, FaUser, FaCopy, FaArrowLeft, FaTruck, FaCheckCircle, FaBan, FaCreditCard, FaClock } from 'react-icons/fa';
+import { FaBox, FaUser, FaCopy, FaArrowLeft, FaTruck, FaCheckCircle, FaBan, FaCreditCard, FaClock, FaChevronDown, FaChevronUp, FaPlus } from 'react-icons/fa';
 import Button from '../../components/Button/Button';
+import { UploadProductModal } from '../../components/modals/UploadProductModal';
 import './AdminView.css';
 
 interface Order {
@@ -55,6 +56,7 @@ const AdminView: React.FC = () => {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [isCustomerDrawerOpen, setIsCustomerDrawerOpen] = useState(false);
   const [isVerifyingAccess, setIsVerifyingAccess] = useState(true);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
 useEffect(() => {
     const checkStaffAccess = async () => {
@@ -460,7 +462,13 @@ useEffect(() => {
     <div className="admin-container">
       <div className="admin-header">
         <h1>Panel de Administración</h1>
-        <p>Gestión de Pedidos</p>
+        <p>Gestión de Pedidos y Productos</p>
+        <button 
+          className="admin-upload-btn"
+          onClick={() => setIsUploadModalOpen(true)}
+        >
+          <FaPlus /> Subir Producto
+        </button>
       </div>
 
       {/* Filters */}
@@ -562,6 +570,16 @@ useEffect(() => {
           ))}
         </div>
       )}
+
+      {/* Upload Product Modal */}
+      <UploadProductModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSuccess={() => {
+          notifications.success('Producto subido exitosamente');
+          setIsUploadModalOpen(false);
+        }}
+      />
     </div>
   );
 };

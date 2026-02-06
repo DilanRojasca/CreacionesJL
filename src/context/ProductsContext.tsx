@@ -7,7 +7,7 @@ interface ProductsContextType {
   products: Product[];
   loading: boolean;
   error: string | null;
-  refetchProducts: () => void;
+  refreshProducts: () => void;
 }
 
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
@@ -40,12 +40,16 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const refreshProducts = async () => {
+    await fetchProducts();
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
 
   return (
-    <ProductsContext.Provider value={{ products, loading, error, refetchProducts: fetchProducts }}>
+    <ProductsContext.Provider value={{ products, loading, error, refreshProducts }}>
       {children}
     </ProductsContext.Provider>
   );

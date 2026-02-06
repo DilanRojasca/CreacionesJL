@@ -8,7 +8,12 @@ import { useProducts } from '../../context/ProductsContext';
 export const Catalog: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { products, loading, error } = useProducts();
+  const { products, loading, error, refreshProducts } = useProducts();
+
+  // Recargar productos al montar el componente
+  useEffect(() => {
+    refreshProducts();
+  }, []);
 
   // Estados para filtros
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
