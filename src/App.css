@@ -5,4 +5,5 @@
   width: 100%;
   /* Use the global design system font from src/styles/index.css */
   font-family: inherit;
+  padding-top: 80px; /* Compensate for fixed navbar */
 }

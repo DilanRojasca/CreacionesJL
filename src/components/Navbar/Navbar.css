@@ -2,9 +2,11 @@
   background: var(--bg-gradient-soft);
   padding: var(--spacing-sm) var(--spacing-md);
   box-shadow: var(--shadow-sm);
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
   backdrop-filter: blur(10px);
 }
 
