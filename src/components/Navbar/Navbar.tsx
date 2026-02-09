@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import Button from '../Button/Button';
-import { supabase } from '../../database/supabase';
 import { FaUser, FaCartArrowDown, FaArrowRightFromBracket, FaChevronDown, FaShieldHalved } from 'react-icons/fa6';
 import './Navbar.css';
 
@@ -11,31 +10,10 @@ import './Navbar.css';
  * Navbar component that changes based on authentication state.
  */
 const Navbar: React.FC = () => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, isStaff } = useAuth();
   const { totalItems } = useCart();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [isStaffState, setIsStaffState] = useState(false);
-
-    useEffect(() => {
-      const checkStaff = async () => {
-        if (user?.id) {
-          try {
-            const { data, error } = await supabase.rpc('is_staff');
-            if (error) {
-              console.error('Error checking staff status:', error);
-              setIsStaffState(false);
-            } else {
-              setIsStaffState(data || false);
-            }
-          } catch (error) {
-            console.error('Error calling is_staff:', error);
-            setIsStaffState(false);
-          }
-        }
-      };
-      checkStaff();
-    }, [user?.id]);
 
   // Cerrar el dropdown al hacer click fuera
   useEffect(() => {
@@ -103,7 +81,7 @@ const Navbar: React.FC = () => {
                     <Link to="/profile" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                       <FaUser className="item-icon-sigma" /> Perfil
                     </Link>
-                    {isStaffState ? (
+                    {isStaff ? (
                       <Link to="/admin" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                         <FaShieldHalved className="item-icon-sigma" /> Panel de administrador
                       </Link>
