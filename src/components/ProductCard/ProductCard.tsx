@@ -1,16 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Product } from '../../types/product';
 import './ProductCard.css';
+import { useAuth } from '../../context/AuthContext';
+import { useDeleteProduct } from '../../hooks/useDeleteProduct';
+import { useNotifications } from '../../hooks/useNotifications';
+import ConfirmationModal from '../modals/ConfirmationModal';
 
 interface ProductCardProps {
   product: Product;
   onProductClick: (product: Product) => void;
+  onProductDeleted?: () => void;
 }
 
 const MAX_RETRIES = 3;
 const INITIAL_DELAY = 1000; // 1 segundo
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClick }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClick, onProductDeleted }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
@@ -18,6 +23,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
   const [shouldLoad, setShouldLoad] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const retryTimeoutRef = useRef<number | undefined>(undefined);
+  const { isStaff } = useAuth();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Lazy loading con IntersectionObserver
   useEffect(() => {
@@ -115,71 +122,126 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
     }).format(price);
   };
 
+  const { deleteProduct, loading: deleteLoading } = useDeleteProduct();
+  const notifications = useNotifications();
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowDeleteModal(false);
+
+    const result = await deleteProduct(product.product_id);
+
+    if (result.success) {
+      notifications.success('Producto eliminado correctamente');
+      onProductDeleted?.(); // Notificar al padre para refrescar la lista
+    } else {
+      notifications.error(result.error || 'Error al eliminar producto');
+    }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+  };
+
   return (
-    <div className="product-card" onClick={() => onProductClick(product)} ref={cardRef}>
-      <div className="product-card__image-container">
-        {imageLoading && shouldLoad && !imageError && (
-          <div className="product-card__image-loader">
-            {retryCount > 0 ? `Reintentando (${retryCount}/${MAX_RETRIES})...` : 'Cargando...'}
-          </div>
-        )}
-        
-        {imageError && (
-          <div className="product-card__image-error">
-            <p>No se pudo cargar la imagen</p>
-          </div>
-        )}
-        
-        {shouldLoad ? (
-          <img
-            src={product.image_urls[currentImageIndex]}
-            alt={product.name}
-            className="product-card__image"
-            loading="lazy"
-            decoding="async"
-            style={{ display: imageLoading || imageError ? 'none' : 'block' }}
-          />
-        ) : (
-          <div className="product-card__image-placeholder" />
-        )}
-
-        {product.image_urls.length > 1 && (
-          <>
+    <>
+      <div className="product-card" onClick={() => onProductClick(product)} ref={cardRef}>
+        <div className="product-card__image-container">
+          {isStaff && (
             <button
-              className="product-card__nav product-card__nav--prev"
-              onClick={prevImage}
-              aria-label="Imagen anterior"
+              className="product-card__delete-btn"
+              onClick={handleDelete}
+              disabled={deleteLoading}
+              aria-label={`Eliminar ${product.name}`}
+              title="Eliminar producto"
             >
-              ‹
+              {deleteLoading ? (
+                <span className="product-card__delete-spinner">⏳</span>
+              ) : (
+                <span className="product-card__delete-icon">🗑️</span>
+              )}
             </button>
-            <button
-              className="product-card__nav product-card__nav--next"
-              onClick={nextImage}
-              aria-label="Siguiente imagen"
-            >
-              ›
-            </button>
+          )}
 
-            <div className="product-card__dots">
-              {product.image_urls.map((_, index) => (
-                <button
-                  key={index}
-                  className={`product-card__dot ${
-                    index === currentImageIndex ? 'product-card__dot--active' : ''
-                  }`}
-                  onClick={(e) => goToImage(index, e)}
-                  aria-label={`Ir a imagen ${index + 1}`}
-                />
-              ))}
+          {imageLoading && shouldLoad && !imageError && (
+            <div className="product-card__image-loader">
+              {retryCount > 0 ? `Reintentando (${retryCount}/${MAX_RETRIES})...` : 'Cargando...'}
             </div>
-          </>
-        )}
+          )}
+          
+          {imageError && (
+            <div className="product-card__image-error">
+              <p>No se pudo cargar la imagen</p>
+            </div>
+          )}
+          
+          {shouldLoad ? (
+            <img
+              src={product.image_urls[currentImageIndex]}
+              alt={product.name}
+              className="product-card__image"
+              loading="lazy"
+              decoding="async"
+              style={{ display: imageLoading || imageError ? 'none' : 'block' }}
+            />
+          ) : (
+            <div className="product-card__image-placeholder" />
+          )}
+
+          {product.image_urls.length > 1 && (
+            <>
+              <button
+                className="product-card__nav product-card__nav--prev"
+                onClick={prevImage}
+                aria-label="Imagen anterior"
+              >
+                ‹
+              </button>
+              <button
+                className="product-card__nav product-card__nav--next"
+                onClick={nextImage}
+                aria-label="Siguiente imagen"
+              >
+                ›
+              </button>
+
+              <div className="product-card__dots">
+                {product.image_urls.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`product-card__dot ${
+                      index === currentImageIndex ? 'product-card__dot--active' : ''
+                    }`}
+                    onClick={(e) => goToImage(index, e)}
+                    aria-label={`Ir a imagen ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="product-card__content">
+          <h3 className="product-card__name">{product.name}</h3>
+          <p className="product-card__price">{formatPrice(product.price)}</p>
+        </div>
       </div>
 
-      <div className="product-card__content">
-        <h3 className="product-card__name">{product.name}</h3>
-        <p className="product-card__price">{formatPrice(product.price)}</p>
-      </div>
-    </div>
+      {/* ✅ Modal fuera del div.product-card para evitar propagación de eventos */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        title="Eliminar producto"
+        message={`¿Estás seguro de eliminar "${product.name}"? Esta acción es irreversible y eliminará todas las imágenes asociadas.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        isDangerous={true}
+      />
+    </>
   );
 };

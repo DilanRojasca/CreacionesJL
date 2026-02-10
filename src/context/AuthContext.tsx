@@ -12,6 +12,7 @@ interface AuthContextType {
   session: Session | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isStaff: boolean;
 
   // Funciones
   login: (email: string, password: string) => Promise<{ error: any }>;
@@ -50,7 +51,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isStaff, setIsStaff] = useState<boolean>(false);
 
+  useEffect(() => {
+      const checkStaff = async () => {
+        if (user?.id) {
+          try {
+            const { data, error } = await supabase.rpc('is_staff');
+            if (error) {
+              console.error('Error checking staff status:', error);
+              setIsStaff(false);
+            } else {
+              setIsStaff(data || false);
+            }
+          } catch (error) {
+            console.error('Error calling is_staff:', error);
+            setIsStaff(false);
+          }
+        }
+      };
+      checkStaff();
+    }, [user?.id]);
 
   //Función para actualizar el estado de autenticación
   const updateAuthState = (session: Session | null) => {
@@ -117,6 +138,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     session,
     isAuthenticated: !!user,
     isLoading,
+    isStaff,
     login,
     register,
     logout,

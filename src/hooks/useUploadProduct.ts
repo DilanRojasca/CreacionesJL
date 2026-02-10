@@ -146,6 +146,7 @@ export const useUploadProduct = () => {
     try {
       // 1. Sanitizar nombre del producto para la carpeta
       const productFolderName = sanitizeProductName(productData.name);
+      const folderPath = `Catalog Images/${productFolderName}`; // ✅ Ruta completa de la carpeta
 
       // 2. Subir todas las imágenes
       const imageUrls: string[] = [];
@@ -155,7 +156,6 @@ export const useUploadProduct = () => {
           imageUrls.push(url);
         } catch (err) {
           console.error('Error uploading individual image:', err);
-          // Continuar con las demás imágenes
         }
       }
 
@@ -163,7 +163,7 @@ export const useUploadProduct = () => {
         throw new Error('No se pudo subir ninguna imagen');
       }
 
-      // 3. Llamar a la RPC para crear el producto
+      // 3. Llamar a la RPC con el folder_path
       const { data, error: rpcError } = await supabase.rpc('upload_product', {
         p_name: productData.name,
         p_description: productData.description,
@@ -171,6 +171,7 @@ export const useUploadProduct = () => {
         p_image_urls: imageUrls,
         p_tags: productData.tags,
         p_sizes: productData.sizes,
+        p_folder_path: folderPath, // ✅ Pasar la ruta de la carpeta
       });
 
       if (rpcError) {

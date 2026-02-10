@@ -342,6 +342,9 @@ export const Catalog: React.FC = () => {
               key={product.product_id}
               product={product}
               onProductClick={handleProductClick}
+              onProductDeleted={() => {
+                refreshProducts();
+              }}
             />
           ))}
         </div>
