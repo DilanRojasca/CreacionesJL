@@ -143,6 +143,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
   return (
     <div className="product-card" onClick={() => onProductClick(product)} ref={cardRef}>
       <div className="product-card__image-container">
+        {/* ✅ Botón de eliminar AQUÍ - dentro del contenedor de imagen */}
+        {isStaff && (
+          <button
+            className="product-card__delete-btn"
+            onClick={handleDelete}
+            disabled={deleteLoading}
+            aria-label={`Eliminar ${product.name}`}
+            title="Eliminar producto"
+          >
+            {deleteLoading ? (
+              <span className="product-card__delete-spinner">⏳</span>
+            ) : (
+              <span className="product-card__delete-icon">🗑️</span>
+            )}
+          </button>
+        )}
+
         {imageLoading && shouldLoad && !imageError && (
           <div className="product-card__image-loader">
             {retryCount > 0 ? `Reintentando (${retryCount}/${MAX_RETRIES})...` : 'Cargando...'}
@@ -204,23 +221,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
       <div className="product-card__content">
         <h3 className="product-card__name">{product.name}</h3>
         <p className="product-card__price">{formatPrice(product.price)}</p>
-        
-        {/* ✅ Botón de eliminar solo para staff */}
-        {isStaff && (
-          <button
-            className="product-card__delete-btn"
-            onClick={handleDelete}
-            disabled={deleteLoading}
-            aria-label={`Eliminar ${product.name}`}
-            title="Eliminar producto"
-          >
-            {deleteLoading ? (
-              <span className="product-card__delete-spinner">⏳</span>
-            ) : (
-              <span className="product-card__delete-icon">🗑️</span>
-            )}
-          </button>
-        )}
       </div>
     </div>
   );
