@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Product } from '../../types/product';
 import './ProductCard.css';
+import { useAuth } from '../../context/AuthContext';
 
 interface ProductCardProps {
   product: Product;
@@ -18,6 +19,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
   const [shouldLoad, setShouldLoad] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const retryTimeoutRef = useRef<number | undefined>(undefined);
+  const { isStaff } = useAuth();
 
   // Lazy loading con IntersectionObserver
   useEffect(() => {
