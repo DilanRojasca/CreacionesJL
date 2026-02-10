@@ -2,16 +2,19 @@ import { useState, useEffect, useRef } from 'react';
 import type { Product } from '../../types/product';
 import './ProductCard.css';
 import { useAuth } from '../../context/AuthContext';
+import { useDeleteProduct } from '../../hooks/useDeleteProduct';
+import { useNotifications } from '../../hooks/useNotifications';
 
 interface ProductCardProps {
   product: Product;
   onProductClick: (product: Product) => void;
+  onProductDeleted?: () => void;
 }
 
 const MAX_RETRIES = 3;
 const INITIAL_DELAY = 1000; // 1 segundo
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClick }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClick, onProductDeleted }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
@@ -117,6 +120,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
     }).format(price);
   };
 
+  const { deleteProduct, loading: deleteLoading } = useDeleteProduct();
+  const notifications = useNotifications();
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!confirm(`¿Estás seguro de eliminar "${product.name}"? Esta acción es irreversible.`)) {
+      return;
+    }
+
+    const result = await deleteProduct(product.product_id);
+
+    if (result.success) {
+      notifications.success('Producto eliminado correctamente');
+      onProductDeleted?.(); // Notificar al padre para refrescar la lista
+    } else {
+      notifications.error(result.error || 'Error al eliminar producto');
+    }
+  };
+
   return (
     <div className="product-card" onClick={() => onProductClick(product)} ref={cardRef}>
       <div className="product-card__image-container">
@@ -181,6 +204,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
       <div className="product-card__content">
         <h3 className="product-card__name">{product.name}</h3>
         <p className="product-card__price">{formatPrice(product.price)}</p>
+        
+        {/* ✅ Botón de eliminar solo para staff */}
+        {isStaff && (
+          <button
+            className="product-card__delete-btn"
+            onClick={handleDelete}
+            disabled={deleteLoading}
+            aria-label={`Eliminar ${product.name}`}
+            title="Eliminar producto"
+          >
+            {deleteLoading ? (
+              <span className="product-card__delete-spinner">⏳</span>
+            ) : (
+              <span className="product-card__delete-icon">🗑️</span>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );
