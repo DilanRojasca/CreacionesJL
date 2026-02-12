@@ -2,8 +2,11 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import type { Product } from '../../types/product';
 import './UploadProductModal.css';
 import { useUploadProduct } from '../../hooks/useUploadProduct.ts';
+import { useEditProduct } from '../../hooks/useEditProduct';
+import { useNotifications } from '../../hooks/useNotifications';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
@@ -14,15 +17,19 @@ const uploadProductSchema = z.object({
   price: z.number().or(z.undefined()).refine((val) => val !== undefined && val > 0, {
     message: 'El precio debe ser mayor a 0',
   }),
-  images: z
-    .array(z.instanceof(File))
-    .min(1, 'Debes subir al menos una imagen')
-    .max(5, 'Máximo 5 imágenes'),
+  existingImages: z.array(z.string()).optional(),
+  images: z.array(z.instanceof(File)),
   tags: z.array(z.string()).min(1, 'Debes agregar al menos una etiqueta'),
   sizes: z.array(z.string()).min(1, 'Debes agregar al menos una talla'),
 }).refine((data) => data.price !== undefined, {
   message: 'El precio es requerido',
   path: ['price'],
+}).refine((data) => (data.existingImages?.length || 0) + data.images.length >= 1, {
+  message: 'Debes tener al menos una imagen',
+  path: ['images'],
+}).refine((data) => (data.existingImages?.length || 0) + data.images.length <= 5, {
+  message: 'Máximo 5 imágenes en total',
+  path: ['images'],
 });
 
 type UploadProductFormData = z.infer<typeof uploadProductSchema>;
@@ -31,26 +38,39 @@ interface UploadProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  productToEdit?: Product;
 }
 
 export const UploadProductModal: React.FC<UploadProductModalProps> = ({ 
   isOpen, 
   onClose,
-  onSuccess
+  onSuccess,
+  productToEdit
 }) => {
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const isEditMode = !!productToEdit;
+  const [allImagePreviews, setAllImagePreviews] = useState<string[]>([]);
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [sizeInput, setSizeInput] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
-  const previousImagesRef = useRef<File[]>([]);
+  const previousImagesRef = useRef<{ existing: string[], new: File[] }>({ existing: [], new: [] });
   
   const { 
     uploadProduct, 
-    loading, 
-    error, 
+    loading: uploadLoading, 
+    error: uploadError, 
     existingTags,
     loadExistingTags 
   } = useUploadProduct();
+
+  const { 
+    editProduct, 
+    loading: editLoading 
+  } = useEditProduct();
+
+  const notifications = useNotifications();
+  const loading = isEditMode ? editLoading : uploadLoading;
+  const error = uploadError;
 
   const {
     register,
@@ -62,16 +82,18 @@ export const UploadProductModal: React.FC<UploadProductModalProps> = ({
   } = useForm<UploadProductFormData>({
     resolver: zodResolver(uploadProductSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      price: undefined,
+      name: productToEdit?.name || '',
+      description: productToEdit?.description || '',
+      price: productToEdit?.price || undefined,
+      existingImages: productToEdit?.image_urls || [],
       images: [],
-      tags: [],
-      sizes: [],
+      tags: productToEdit?.tags || [],
+      sizes: productToEdit?.sizes || [],
     },
   });
 
   const watchedImages = useWatch({ control, name: 'images' });
+  const watchedExistingImages = useWatch({ control, name: 'existingImages' });
   const watchedTags = useWatch({ control, name: 'tags' });
   const watchedSizes = useWatch({ control, name: 'sizes' });
 
@@ -95,47 +117,60 @@ export const UploadProductModal: React.FC<UploadProductModalProps> = ({
   // Limpiar previsualizaciones cuando el modal se cierra
   useEffect(() => {
     if (!isOpen) {
-      setImagePreviews(prev => {
-        prev.forEach(url => URL.revokeObjectURL(url));
-        return [];
+      // Limpiar previsualizaciones de nuevas imágenes
+      allImagePreviews.forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
       });
-      reset();
+      setAllImagePreviews([]);
+      setImagesToDelete([]);
+      reset({
+        name: productToEdit?.name || '',
+        description: productToEdit?.description || '',
+        price: productToEdit?.price || undefined,
+        existingImages: productToEdit?.image_urls || [],
+        images: [],
+        tags: productToEdit?.tags || [],
+        sizes: productToEdit?.sizes || [],
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  // Generar previsualizaciones de imágenes solo cuando realmente cambian los archivos
+  // Generar previsualizaciones combinando imágenes existentes y nuevas
   useEffect(() => {
-    const currentImages = watchedImages || [];
-    const previousImages = previousImagesRef.current;
+    const currentExisting = watchedExistingImages || [];
+    const currentNew = watchedImages || [];
     
-    // Verificar si los archivos realmente cambiaron
     const hasChanged = 
-      currentImages.length !== previousImages.length ||
-      currentImages.some((file, index) => file !== previousImages[index]);
+      currentExisting.length !== previousImagesRef.current.existing.length ||
+      currentNew.length !== previousImagesRef.current.new.length ||
+      currentExisting.some((img, index) => img !== previousImagesRef.current.existing[index]) ||
+      currentNew.some((file, index) => file !== previousImagesRef.current.new[index]);
     
-    if (!hasChanged) {
-      return;
+    if (!hasChanged) return;
+    
+    previousImagesRef.current = { existing: currentExisting, new: currentNew };
+    
+    // Combinar URLs existentes con previsualizaciones de nuevas imágenes
+    const existingUrls = currentExisting;
+    const newUrls = currentNew.map(file => URL.createObjectURL(file));
+    
+    setAllImagePreviews([...existingUrls, ...newUrls]);
+  }, [watchedExistingImages, watchedImages]);
+
+  // Forzar carga inicial de imágenes cuando se abre el modal con producto a editar
+  useEffect(() => {
+    if (isOpen && isEditMode && productToEdit && productToEdit.image_urls.length > 0) {
+      // Inicializar previsualizaciones con las imágenes existentes
+      setAllImagePreviews([...productToEdit.image_urls]);
+      previousImagesRef.current = { 
+        existing: [...productToEdit.image_urls], 
+        new: [] 
+      };
     }
-    
-    // Actualizar la referencia
-    previousImagesRef.current = currentImages;
-    
-    if (currentImages.length > 0) {
-      setImagePreviews(prev => {
-        // Limpiar URLs anteriores
-        prev.forEach(url => URL.revokeObjectURL(url));
-        
-        // Crear nuevas previews
-        return currentImages.map(file => URL.createObjectURL(file));
-      });
-    } else {
-      setImagePreviews(prev => {
-        prev.forEach(url => URL.revokeObjectURL(url));
-        return [];
-      });
-    }
-  }, [watchedImages]);
+  }, [isOpen, isEditMode, productToEdit]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -144,7 +179,13 @@ export const UploadProductModal: React.FC<UploadProductModalProps> = ({
     const validFiles: File[] = [];
     const errors: string[] = [];
 
+    const currentTotal = (watchedExistingImages?.length || 0) + (watchedImages?.length || 0);
+
     Array.from(files).forEach(file => {
+      if (currentTotal + validFiles.length >= 5) {
+        errors.push('Máximo 5 imágenes en total');
+        return;
+      }
       if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
         errors.push(`${file.name}: Formato no válido`);
         return;
@@ -157,22 +198,33 @@ export const UploadProductModal: React.FC<UploadProductModalProps> = ({
     });
 
     if (errors.length > 0) {
-      alert('Errores en las imágenes:\n' + errors.join('\n'));
+      if (notifications) {
+        notifications.error(errors.join('\n'));
+      } else {
+        alert('Errores en las imágenes:\n' + errors.join('\n'));
+      }
     }
 
     const currentImages = watchedImages || [];
-    const newImages = [...currentImages, ...validFiles].slice(0, 5);
+    const newImages = [...currentImages, ...validFiles];
     setValue('images', newImages);
   };
 
   const removeImage = (index: number) => {
-    const currentImages = watchedImages || [];
-    const newImages = currentImages.filter((_, i) => i !== index);
-    setValue('images', newImages);
+    const existingCount = watchedExistingImages?.length || 0;
     
-    // Limpiar URL de previsualización
-    URL.revokeObjectURL(imagePreviews[index]);
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    if (index < existingCount) {
+      // Es una imagen existente (solo en modo edición)
+      const currentExisting = watchedExistingImages || [];
+      const imageToDelete = currentExisting[index];
+      setValue('existingImages', currentExisting.filter((_, i) => i !== index));
+      setImagesToDelete(prev => [...prev, imageToDelete]);
+    } else {
+      // Es una imagen nueva
+      const newIndex = index - existingCount;
+      const currentImages = watchedImages || [];
+      setValue('images', currentImages.filter((_, i) => i !== newIndex));
+    }
   };
 
   const handleAddTag = (tag: string) => {
@@ -244,24 +296,58 @@ export const UploadProductModal: React.FC<UploadProductModalProps> = ({
 
   const onSubmit = async (data: UploadProductFormData) => {
     try {
-      await uploadProduct({
-        ...data,
-        price: data.price!
-      });
-      onSuccess?.();
-      onClose();
+      if (isEditMode && productToEdit) {
+        // Modo edición
+        const result = await editProduct(productToEdit.product_id, {
+          name: data.name,
+          description: data.description,
+          price: data.price!,
+          tags: data.tags,
+          sizes: data.sizes,
+          imagesToDelete,
+          existingImages: data.existingImages || [],
+          newImages: data.images,
+        });
+
+        if (result.success) {
+          notifications.success('Producto actualizado correctamente');
+          onSuccess?.();
+          onClose();
+        } else {
+          notifications.error(result.error || 'Error al actualizar producto');
+        }
+      } else {
+        // Modo crear
+        await uploadProduct({
+          name: data.name,
+          description: data.description,
+          price: data.price!,
+          images: data.images,
+          tags: data.tags,
+          sizes: data.sizes,
+        });
+        onSuccess?.();
+        onClose();
+      }
     } catch (err) {
-      console.error('Error uploading product:', err);
+      console.error('Error uploading/editing product:', err);
+      if (notifications) {
+        notifications.error('Error inesperado al guardar producto');
+      }
     }
   };
 
   if (!isOpen) return null;
 
+  const totalImages = (watchedExistingImages?.length || 0) + (watchedImages?.length || 0);
+
   return (
     <div className="upload-modal-overlay" onMouseDown={handleOverlayClick}>
       <div className="upload-modal" onMouseDown={handleModalMouseDown}>
         <div className="upload-modal__header">
-          <h2 className="upload-modal__title">Subir Nuevo Producto</h2>
+          <h2 className="upload-modal__title">
+            {isEditMode ? 'Editar Producto' : 'Subir Nuevo Producto'}
+          </h2>
           <button 
             className="upload-modal__close"
             onClick={onClose}
@@ -353,14 +439,18 @@ export const UploadProductModal: React.FC<UploadProductModalProps> = ({
               accept={ACCEPTED_IMAGE_TYPES.join(',')}
               className="upload-modal__file-input"
               onChange={handleImageChange}
+              disabled={totalImages >= 5}
             />
             {errors.images && (
               <span className="upload-modal__error">{errors.images.message}</span>
             )}
+            {errors.existingImages && (
+              <span className="upload-modal__error">{errors.existingImages.message}</span>
+            )}
             
-            {imagePreviews.length > 0 && (
+            {allImagePreviews.length > 0 && (
               <div className="upload-modal__image-previews">
-                {imagePreviews.map((preview, index) => (
+                {allImagePreviews.map((preview, index) => (
                   <div key={index} className="upload-modal__image-preview">
                     <img src={preview} alt={`Preview ${index + 1}`} />
                     <button
@@ -510,7 +600,10 @@ export const UploadProductModal: React.FC<UploadProductModalProps> = ({
               className="upload-modal__btn upload-modal__btn--submit"
               disabled={loading}
             >
-              {loading ? 'Subiendo...' : 'Subir Producto'}
+              {loading 
+                ? (isEditMode ? 'Guardando...' : 'Subiendo...') 
+                : (isEditMode ? 'Guardar Cambios' : 'Subir Producto')
+              }
             </button>
           </div>
         </form>

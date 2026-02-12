@@ -177,16 +177,15 @@
   transform: scale(0.98);
 }
 
-/* Botón de eliminar - Solo staff */
+/* Botones de staff - Editar y Eliminar */
+.product-card__edit-btn,
 .product-card__delete-btn {
   position: absolute;
   top: var(--spacing-xs);
-  right: var(--spacing-xs);
   width: 40px;
   height: 40px;
   border: none;
   border-radius: var(--border-radius-full);
-  background: rgba(220, 53, 69, 0.9);
   backdrop-filter: blur(8px);
   color: var(--text-light);
   font-size: 1.2rem;
@@ -201,9 +200,26 @@
   transform: scale(0.8);
 }
 
+.product-card__edit-btn {
+  right: calc(var(--spacing-xs) + 50px); /* Espacio para el botón de eliminar */
+  background: rgba(222, 185, 122, 0.9);
+}
+
+.product-card__delete-btn {
+  right: var(--spacing-xs);
+  background: rgba(220, 53, 69, 0.9);
+}
+
+.product-card:hover .product-card__edit-btn,
 .product-card:hover .product-card__delete-btn {
   opacity: 1;
   transform: scale(1);
+}
+
+.product-card__edit-btn:hover {
+  background: rgba(200, 155, 92, 1);
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .product-card__delete-btn:hover:not(:disabled) {
@@ -212,6 +228,7 @@
   box-shadow: var(--shadow-lg);
 }
 
+.product-card__edit-btn:active,
 .product-card__delete-btn:active:not(:disabled) {
   transform: scale(0.95);
 }
@@ -249,12 +266,17 @@
     padding: var(--spacing-xs) var(--spacing-sm);
   }
 
-  /* Responsive: botón siempre visible en móviles */
+  /* Responsive: botones siempre visibles en móviles */
+  .product-card__edit-btn,
   .product-card__delete-btn {
     opacity: 0.8;
     transform: scale(1);
     width: 36px;
     height: 36px;
     font-size: 1rem;
+  }
+
+  .product-card__edit-btn {
+    right: calc(var(--spacing-xs) + 45px);
   }
 }

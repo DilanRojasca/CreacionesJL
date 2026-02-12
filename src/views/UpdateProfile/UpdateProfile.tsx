@@ -115,7 +115,6 @@ const UpdateProfile: React.FC = () => {
         console.error('Error RPC:', error.message);
         showError('Error al actualizar: ' + error.message);
       } else {
-        console.log('Perfil actualizado con RPC:', data);
         profileUpdated();
 
         // Volvemos al perfil después de un breve momento
