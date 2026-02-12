@@ -66,7 +66,7 @@ export const useEditProduct = () => {
       const filePaths = imageUrls.map(url => extractS3KeyFromUrl(url));
 
       // Eliminar archivos
-      const { data, error: deleteError } = await supabase.storage
+      const { error: deleteError } = await supabase.storage
         .from('products_images')
         .remove(filePaths);
 
