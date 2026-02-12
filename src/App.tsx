@@ -16,29 +16,31 @@ const RegisterForm = lazy(() => import('./views/RegisterForm/RegisterForm'));
 const Catalog = lazy(() => import('./views/Catalog/Catalog').then(m => ({ default: m.Catalog })));
 const CartView = lazy(() => import('./views/CartView/CartView'));
 const ProfileView = lazy(() => import('./views/ProfileView/ProfileView'));
-const UpdateProfile = lazy(() => import('./views/UpdateProfile/UpdateProfile'));
-const AdminView = lazy(() => import('./views/AdminView/AdminView'));
-
-function App() {
-  return (
-    <AuthProvider>
-      <CartProvider>
-        <ProductsProvider>
-          <Router>
-            <div className="App">
-              <Navbar />
-              <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</div>}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/login" element={<LoginForm />} />
-                  <Route path="/register" element={<RegisterForm />} />
-                  <Route path="/catalog" element={<Catalog />} />
-                  <Route path="/cart" element={<CartView />} />
-                  <Route path="/profile" element={<ProfileView />} />
-                  <Route path="/update-profile" element={<UpdateProfile />} />
-                  <Route path="/admin" element={<AdminView />} />
-                </Routes>
-              </Suspense>
+  const UpdateProfile = lazy(() => import('./views/UpdateProfile/UpdateProfile'));
+  const AdminView = lazy(() => import('./views/AdminView/AdminView'));
+  const ForgotPassword = lazy(() => import('./views/ForgotPassword/ForgotPassword'));
+  
+  function App() {
+    return (
+      <AuthProvider>
+        <CartProvider>
+          <ProductsProvider>
+            <Router>
+              <div className="App">
+                <Navbar />
+                <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</div>}>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<LoginForm />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/register" element={<RegisterForm />} />
+                    <Route path="/catalog" element={<Catalog />} />
+                    <Route path="/cart" element={<CartView />} />
+                    <Route path="/profile" element={<ProfileView />} />
+                    <Route path="/update-profile" element={<UpdateProfile />} />
+                    <Route path="/admin" element={<AdminView />} />
+                  </Routes>
+                </Suspense>
               <Footer />
               <ToastContainer 
                 position="bottom-right"

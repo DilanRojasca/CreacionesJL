@@ -81,7 +81,7 @@ const LoginForm: React.FC = () => {
           </Button>
       </form>
       <div className="login-form-footer">
-              <p>¿Olvidaste tu contraseña? <a href="/forgot-password">Recuperar contraseña</a></p>
+              <p>¿Olvidaste tu contraseña? <Link to="/forgot-password">Recuperar contraseña</Link></p>
               <p>¿No tienes una cuenta? <Link to="/register">Regístrate</Link></p>
               <p><Link to="/" className="back-link">← Regresar al inicio</Link></p>
           </div>

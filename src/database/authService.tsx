@@ -339,8 +339,12 @@ export const resetPassword = async (
   email: string
 ): Promise<{ error: AuthError | null }> => {
   try {
+    const redirectTo = window.location.hostname === 'localhost'
+      ? 'http://localhost:5173/update-password'
+      : 'https://creaciones-jl.vercel.app/update-password';
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo,
     });
 
     return { error };
