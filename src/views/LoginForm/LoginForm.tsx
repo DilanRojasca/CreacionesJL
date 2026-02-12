@@ -60,7 +60,7 @@ const LoginForm: React.FC = () => {
                 type="email"
                 id="email"
                 name="email"
-                value={email}
+                value={email || ''}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
@@ -71,7 +71,7 @@ const LoginForm: React.FC = () => {
                 type="password"
                 id="password"
                 name="password"
-                value={password}
+                value={password || ''}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />

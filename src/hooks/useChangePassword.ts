@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '../database/supabase';
 

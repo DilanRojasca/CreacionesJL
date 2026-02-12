@@ -226,7 +226,7 @@ const RegisterForm: React.FC = () => {
             type="text"
             id="firstName"
             name="firstName"
-            value={firstName}
+            value={firstName || ''}
             onChange={(e) => setFirstName(e.target.value)}
             required
           />
@@ -237,7 +237,7 @@ const RegisterForm: React.FC = () => {
             type="text"
             id="lastName"
             name="lastName"
-            value={lastName}
+            value={lastName || ''}
             onChange={(e) => setLastName(e.target.value)}
             required
           />
@@ -249,7 +249,7 @@ const RegisterForm: React.FC = () => {
             type="email"
             id="email"
             name="email"
-            value={email}
+            value={email || ''}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
@@ -262,7 +262,7 @@ const RegisterForm: React.FC = () => {
             type="password"
             id="password"
             name="password"
-            value={password}
+            value={password || ''}
             onChange={(e) => setPassword(e.target.value)}
             onFocus={() => setIsPasswordFocused(true)}
             onBlur={() => setIsPasswordFocused(false)}
@@ -278,7 +278,7 @@ const RegisterForm: React.FC = () => {
             type="password"
             id="confirmPassword"
             name="confirmPassword"
-            value={confirmPassword}
+            value={confirmPassword || ''}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
@@ -291,7 +291,7 @@ const RegisterForm: React.FC = () => {
             type="tel"
             id="phone"
             name="phone"
-            value={phone}
+            value={phone || ''}
             onChange={(e) => {
               const value = e.target.value.replace(/\D/g, '');
               setPhone(value.slice(0, 10));
