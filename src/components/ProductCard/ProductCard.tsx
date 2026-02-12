@@ -5,6 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useDeleteProduct } from '../../hooks/useDeleteProduct';
 import { useNotifications } from '../../hooks/useNotifications';
 import ConfirmationModal from '../modals/ConfirmationModal';
+import { UploadProductModal } from '../modals/UploadProductModal';
+import { FaPencil, FaTrash } from 'react-icons/fa6';
 
 interface ProductCardProps {
   product: Product;
@@ -25,6 +27,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
   const retryTimeoutRef = useRef<number | undefined>(undefined);
   const { isStaff } = useAuth();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Lazy loading con IntersectionObserver
   useEffect(() => {
@@ -147,24 +150,43 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
     setShowDeleteModal(false);
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowEditModal(true);
+  };
+
+  const handleEditSuccess = () => {
+    onProductDeleted?.(); // Reutilizar callback para refrescar la lista
+  };
+
   return (
     <>
       <div className="product-card" onClick={() => onProductClick(product)} ref={cardRef}>
         <div className="product-card__image-container">
           {isStaff && (
-            <button
-              className="product-card__delete-btn"
-              onClick={handleDelete}
-              disabled={deleteLoading}
-              aria-label={`Eliminar ${product.name}`}
-              title="Eliminar producto"
-            >
-              {deleteLoading ? (
-                <span className="product-card__delete-spinner">⏳</span>
-              ) : (
-                <span className="product-card__delete-icon">🗑️</span>
-              )}
-            </button>
+            <>
+              <button
+                className="product-card__edit-btn"
+                onClick={handleEdit}
+                aria-label={`Editar ${product.name}`}
+                title="Editar producto"
+              >
+                <FaPencil />
+              </button>
+              <button
+                className="product-card__delete-btn"
+                onClick={handleDelete}
+                disabled={deleteLoading}
+                aria-label={`Eliminar ${product.name}`}
+                title="Eliminar producto"
+              >
+                {deleteLoading ? (
+                  <span className="product-card__delete-spinner">⏳</span>
+                ) : (
+                  <FaTrash />
+                )}
+              </button>
+            </>
           )}
 
           {imageLoading && shouldLoad && !imageError && (
@@ -231,7 +253,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
         </div>
       </div>
 
-      {/* ✅ Modal fuera del div.product-card para evitar propagación de eventos */}
+      {/* ✅ Modales fuera del div.product-card para evitar propagación de eventos */}
       <ConfirmationModal
         isOpen={showDeleteModal}
         title="Eliminar producto"
@@ -241,6 +263,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onProductClic
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
         isDangerous={true}
+      />
+
+      <UploadProductModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSuccess={handleEditSuccess}
+        productToEdit={product}
       />
     </>
   );

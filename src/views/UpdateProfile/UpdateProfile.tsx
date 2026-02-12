@@ -101,7 +101,7 @@ const UpdateProfile: React.FC = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.rpc('update_profile', {
+      const { error } = await supabase.rpc('update_profile', {
         p_first_name: formData.first_name,
         p_last_name: formData.last_name,
         p_phone: formData.phone,
@@ -115,7 +115,6 @@ const UpdateProfile: React.FC = () => {
         console.error('Error RPC:', error.message);
         showError('Error al actualizar: ' + error.message);
       } else {
-        console.log('Perfil actualizado con RPC:', data);
         profileUpdated();
 
         // Volvemos al perfil después de un breve momento
