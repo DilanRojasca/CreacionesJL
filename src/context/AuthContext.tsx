@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { supabase } from '../database/supabase';
-import { loginUser, registerUser, logoutUser } from '../database/authService';
+import { loginUser, registerUser, logoutUser, resetPassword as authResetPassword } from '../database/authService';
 import type { User, Session } from '@supabase/supabase-js';
 
 
@@ -30,6 +30,7 @@ interface AuthContextType {
     addressJson?: object
   ) => Promise<{ error: any }>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
 }
 
 /**
@@ -132,6 +133,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   };
 
+  const resetPassword = async (email: string) => {
+    setIsLoading(true);
+    const { error } = await authResetPassword(email);
+    setIsLoading(false);
+    return { error };
+  };
+
   // Valor del contexto
   const value: AuthContextType = {
     user,
@@ -142,6 +150,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    resetPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
