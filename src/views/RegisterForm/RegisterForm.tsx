@@ -8,6 +8,7 @@ import Button from '../../components/Button/Button';
 import Dropdown from '../../components/Dropdown/Dropdown';
 import { TIPOS_VIA, LETRAS, CARDINALES, TIPO_INMUEBLE, construirDireccionLegible, type AddressState } from '../../utils/addressUtils';
 import { fetchColombiaData, type ColombiaDepartment } from '../../utils/colombiaData';
+import { FaMapMarkerAlt } from 'react-icons/fa';
 
 const RegisterForm: React.FC = () => {
   const { register } = useAuth();
@@ -482,6 +483,9 @@ const RegisterForm: React.FC = () => {
           </div>
 
           <div className="address-preview" role="status" aria-live="polite">
+            <div className="address-preview-icon">
+              <FaMapMarkerAlt />
+            </div>
             <small>Previsualización de dirección:</small>
             <p>{construirDireccionLegible(direccion) || "Complete los campos para generar la dirección..."}</p>
           </div>
