@@ -4,8 +4,6 @@
   padding: clamp(var(--spacing-lg), 5vw, var(--spacing-xl)) clamp(var(--spacing-sm), 3vw, var(--spacing-lg));
   box-shadow: var(--shadow-sm);
   margin-top: auto;
-  position: relative;
-  z-index: 10;
 }
 
 .footer-container {

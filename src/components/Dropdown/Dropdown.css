@@ -5,29 +5,35 @@
 
 .dropdown-toggle {
   width: 100%;
-  padding: var(--spacing-sm) 0.5rem;
-  background-color: var(--bg-input);
-  border: 1px solid var(--border-light);
+  padding: 0.85rem 1rem;
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-light);
   border-radius: var(--border-radius-sm);
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 1rem;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: var(--transition-fast);
+  transition: var(--transition-normal);
   box-shadow: var(--shadow-sm);
   white-space: nowrap;
   overflow: hidden;
 }
 
 .dropdown-toggle:hover:not(.disabled) {
-  border-color: var(--border-accent);
+  border-color: var(--color-gold-light);
   background-color: var(--bg-input-focus);
 }
 
+.dropdown-toggle:focus-visible {
+  outline: none;
+  border-color: var(--color-gold-strong);
+  box-shadow: 0 0 0 4px rgba(222, 185, 122, 0.15);
+}
+
 .dropdown-toggle.open {
-  border-color: var(--border-accent);
+  border-color: var(--color-gold-strong);
   background-color: var(--bg-input-focus);
   box-shadow: var(--shadow-md);
 }
@@ -60,35 +66,47 @@
 
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
   background-color: var(--bg-primary);
-  border: 1px solid var(--border-light);
+  border: 2px solid var(--border-light);
   border-radius: var(--border-radius-md);
-  box-shadow: var(--shadow-md);
-  max-height: 200px;
+  box-shadow: var(--shadow-lg);
+  max-height: 250px;
   overflow-y: auto;
   z-index: 1000;
   margin: 0;
-  padding: 0;
+  padding: 6px;
   list-style: none;
+  animation: dropdownFade 0.2s ease-out;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .dropdown-item {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0.8rem 1rem;
   cursor: pointer;
   color: var(--text-primary);
+  border-radius: var(--border-radius-sm);
   transition: var(--transition-fast);
+  margin-bottom: 2px;
+}
+
+.dropdown-item:last-child {
+  margin-bottom: 0;
 }
 
 .dropdown-item:hover {
-  background-color: var(--bg-tertiary);
-  color: var(--text-accent);
+  background-color: var(--color-beige-pink);
+  color: var(--color-brown-soft);
 }
 
 .dropdown-item.selected {
-  background-color: var(--color-gold-light);
-  color: var(--text-primary);
-  font-weight: 500;
+  background-color: var(--color-gold-strong);
+  color: white;
+  font-weight: 600;
 }
