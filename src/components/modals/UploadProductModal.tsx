@@ -471,7 +471,7 @@ export const UploadProductModal: React.FC<UploadProductModalProps> = ({
             <label htmlFor="tags" className="upload-modal__label">
               Etiquetas/Categorías *
             </label>
-            <div className="upload-modal__tag-input-wrapper">
+            <div className={`upload-modal__tag-input-wrapper ${showTagSuggestions && filteredTagSuggestions.length > 0 ? 'is-open' : ''}`}>
               <input
                 id="tags"
                 type="text"

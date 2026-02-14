@@ -3,6 +3,10 @@
   width: 100%;
 }
 
+.dropdown.is-open {
+  z-index: 1001; /* Lift above other form fields/blocks */
+}
+
 .dropdown-toggle {
   width: 100%;
   padding: 0.85rem 1rem;
