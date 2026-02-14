@@ -8,6 +8,7 @@ import Button from '../../components/Button/Button';
 import Dropdown from '../../components/Dropdown/Dropdown';
 import { TIPOS_VIA, LETRAS, CARDINALES, TIPO_INMUEBLE, construirDireccionLegible, type AddressState } from '../../utils/addressUtils';
 import { fetchColombiaData, type ColombiaDepartment } from '../../utils/colombiaData';
+import { FaMapMarkerAlt } from 'react-icons/fa';
 
 const RegisterForm: React.FC = () => {
   const { register } = useAuth();
@@ -345,102 +346,148 @@ const RegisterForm: React.FC = () => {
           <label>Dirección:</label>
 
           {/* BLOQUE 1: Vía Principal */}
-          <div className="address-row">
-            <Dropdown
-              options={TIPOS_VIA.map(t => ({ value: t, label: t }))}
-              value={direccion.via_tipo}
-              onChange={(value) => setDireccion({ ...direccion, via_tipo: value })}
-              className="address-select"
-            />
-            <input
-              type="number"
-              placeholder="Num"
-              min="0"
-              value={direccion.via_numero}
-              onChange={(e) => setDireccion({ ...direccion, via_numero: e.target.value })}
-              onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
-              className="address-input-sm"
-            />
-            <Dropdown
-              options={[{ value: '', label: 'Letra' }].concat(LETRAS.filter(l => l).map(l => ({ value: l, label: l })))}
-              value={direccion.via_letra}
-              onChange={(value) => setDireccion({ ...direccion, via_letra: value })}
-              className="address-select-sm"
-            />
-            <label className="checkbox-label">
+          <div className="address-block">
+            <div className="address-row">
+              <Dropdown
+                options={TIPOS_VIA.map(t => ({ value: t, label: t }))}
+                value={direccion.via_tipo}
+                onChange={(value) => setDireccion({ ...direccion, via_tipo: value })}
+                className="address-select"
+                id="via_tipo"
+              />
               <input
-                type="checkbox"
-                checked={direccion.via_bis}
-                onChange={(e) => setDireccion({ ...direccion, via_bis: e.target.checked })}
-              /> Bis
-            </label>
-            <Dropdown
-              options={[{ value: '', label: 'Card' }].concat(CARDINALES.filter(c => c).map(c => ({ value: c, label: c })))}
-              value={direccion.via_cardinal}
-              onChange={(value) => setDireccion({ ...direccion, via_cardinal: value })}
-              className="address-select-sm"
-            />
+                type="number"
+                placeholder="Num"
+                min="0"
+                value={direccion.via_numero}
+                onChange={(e) => setDireccion({ ...direccion, via_numero: e.target.value })}
+                onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
+                className="address-input-sm"
+                aria-label="Número de vía principal"
+              />
+              <Dropdown
+                options={[{ value: '', label: 'Letra' }].concat(LETRAS.filter(l => l).map(l => ({ value: l, label: l })))}
+                value={direccion.via_letra}
+                onChange={(value) => setDireccion({ ...direccion, via_letra: value })}
+                className="address-select-sm"
+                id="via_letra"
+              />
+              <label className={`checkbox-label ${direccion.via_bis ? 'checked' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={direccion.via_bis}
+                  onChange={(e) => setDireccion({ ...direccion, via_bis: e.target.checked })}
+                  aria-label="Bis"
+                />
+                <span className="custom-checkbox" aria-hidden="true"></span>
+                Bis
+              </label>
+              
+              <div className="cardinal-selector" role="radiogroup" aria-label="Cardinalidad vía principal">
+                {CARDINALES.map(c => (
+                  <button
+                    key={c || 'none'}
+                    type="button"
+                    className={`cardinal-btn ${direccion.via_cardinal === c ? 'active' : ''}`}
+                    onClick={() => setDireccion({ ...direccion, via_cardinal: c })}
+                    data-tooltip={c || 'Sin cardinalidad'}
+                    aria-label={c || 'Sin cardinalidad'}
+                    aria-checked={direccion.via_cardinal === c}
+                    role="radio"
+                  >
+                    {c ? c.substring(0, 1) : '—'}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="address-separator">#</div>
 
           {/* BLOQUE 2: Cruce */}
-          <div className="address-row">
-            <input
-              type="number"
-              placeholder="Num"
-              min="0"
-              value={direccion.cruce_numero}
-              onChange={(e) => setDireccion({ ...direccion, cruce_numero: e.target.value })}
-              onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
-              className="address-input-sm"
-            />
-            <Dropdown
-              options={[{ value: '', label: 'Letra' }].concat(LETRAS.filter(l => l).map(l => ({ value: l, label: l })))}
-              value={direccion.cruce_letra}
-              onChange={(value) => setDireccion({ ...direccion, cruce_letra: value })}
-              className="address-select-sm"
-            />
-            <Dropdown
-              options={[{ value: '', label: 'Card' }].concat(CARDINALES.filter(c => c).map(c => ({ value: c, label: c })))}
-              value={direccion.cruce_cardinal}
-              onChange={(value) => setDireccion({ ...direccion, cruce_cardinal: value })}
-              className="address-select-sm"
-            />
-            <div className="address-separator">-</div>
-            <input
-              type="number"
-              placeholder="Placa"
-              min="0"
-              value={direccion.placa_numero}
-              onChange={(e) => setDireccion({ ...direccion, placa_numero: e.target.value })}
-              onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
-              className="address-input-sm"
-            />
+          <div className="address-block">
+            <div className="address-row">
+              <input
+                type="number"
+                placeholder="Num"
+                min="0"
+                value={direccion.cruce_numero}
+                onChange={(e) => setDireccion({ ...direccion, cruce_numero: e.target.value })}
+                onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
+                className="address-input-sm"
+                aria-label="Número de cruce"
+              />
+              <Dropdown
+                options={[{ value: '', label: 'Letra' }].concat(LETRAS.filter(l => l).map(l => ({ value: l, label: l })))}
+                value={direccion.cruce_letra}
+                onChange={(value) => setDireccion({ ...direccion, cruce_letra: value })}
+                className="address-select-sm"
+                id="cruce_letra"
+              />
+              
+              <div className="cardinal-selector" role="radiogroup" aria-label="Cardinalidad cruce">
+                {CARDINALES.map(c => (
+                  <button
+                    key={c || 'none'}
+                    type="button"
+                    className={`cardinal-btn ${direccion.cruce_cardinal === c ? 'active' : ''}`}
+                    onClick={() => setDireccion({ ...direccion, cruce_cardinal: c })}
+                    data-tooltip={c || 'Sin cardinalidad'}
+                    aria-label={c || 'Sin cardinalidad'}
+                    aria-checked={direccion.cruce_cardinal === c}
+                    role="radio"
+                  >
+                    {c ? c.substring(0, 1) : '—'}
+                  </button>
+                ))}
+              </div>
+
+              <div className="address-separator">-</div>
+              <input
+                type="number"
+                placeholder="Placa"
+                min="0"
+                value={direccion.placa_numero}
+                onChange={(e) => setDireccion({ ...direccion, placa_numero: e.target.value })}
+                onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
+                className="address-input-sm"
+                aria-label="Número de placa"
+              />
+            </div>
           </div>
 
           {/* BLOQUE 3: Complemento */}
-          <div className="address-row full-row">
-            <h4>Complemento (Opcional):</h4>
-            <Dropdown
-              options={[{ value: '', label: '(Apto, casa, etc.)' }].concat(TIPO_INMUEBLE.filter(t => t).map(t => ({ value: t, label: t })))}
-              value={direccion.complemento_tipo}
-              onChange={(value) => setDireccion({ ...direccion, complemento_tipo: value })}
-              className="address-select"
-            />
-            <input
-              type="number"
-              placeholder="Detalle (Ej: 501)"
-              min="0"
-              value={direccion.complemento_dato}
-              onChange={(e) => setDireccion({ ...direccion, complemento_dato: e.target.value })}
-              onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
-              className="address-input-md"
-            />
+          <div className="address-block">
+            <div className="address-row full-row">
+              <h4>Complemento (Opcional):</h4>
+              <div className="address-row">
+                <Dropdown
+                  options={[{ value: '', label: '(Apto, casa, etc.)' }].concat(TIPO_INMUEBLE.filter(t => t).map(t => ({ value: t, label: t })))}
+                  value={direccion.complemento_tipo}
+                  onChange={(value) => setDireccion({ ...direccion, complemento_tipo: value })}
+                  className="address-select"
+                  id="complemento_tipo"
+                />
+                <input
+                  type="number"
+                  placeholder="Detalle (Ej: 501)"
+                  min="0"
+                  value={direccion.complemento_dato}
+                  onChange={(e) => setDireccion({ ...direccion, complemento_dato: e.target.value })}
+                  onKeyPress={(e) => { if ((!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) || e.key === '-') e.preventDefault(); }}
+                  className="address-input-md"
+                  aria-label="Detalle de complemento"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="address-preview">
-            <small>Resultado: {construirDireccionLegible(direccion) || "..."}</small>
+          <div className="address-preview" role="status" aria-live="polite">
+            <div className="address-preview-icon">
+              <FaMapMarkerAlt />
+            </div>
+            <small>Previsualización de dirección:</small>
+            <p>{construirDireccionLegible(direccion) || "Complete los campos para generar la dirección..."}</p>
           </div>
         </div>
 

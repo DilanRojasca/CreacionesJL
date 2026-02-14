@@ -44,7 +44,7 @@ const Home: React.FC = () => {
           />
         ))}
       </div>
-      
+
       {/* Overlay Global */}
       <div className="home-overlay"></div>
 
@@ -87,7 +87,7 @@ const Home: React.FC = () => {
             <span className="about-greeting">HOLA, MI NOMBRE ES</span>
             <h1 className="about-name">CREACIONES JL</h1>
             <h2 className="about-title">Diseño & Confección</h2>
-            
+
             <p className="about-description">
               Transformamos ideas en prendas únicas. Con una pasión inquebrantable por el detalle y la calidad, 
               creamos colecciones que fusionan estilo contemporáneo con comodidad absoluta. 

@@ -55,7 +55,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   }, []);
 
   return (
-    <div className={`dropdown ${className}`} ref={dropdownRef}>
+    <div className={`dropdown ${className} ${isOpen ? 'is-open' : ''}`} ref={dropdownRef}>
       <button
         type="button"
         className={`dropdown-toggle ${isOpen ? 'open' : ''} ${disabled ? 'disabled' : ''}`}

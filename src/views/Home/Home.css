@@ -8,10 +8,9 @@
 .home-container {
   width: 100%;
   overflow-x: hidden;
-  /* El background-color se reemplaza por el fondo fixed */
   display: flex;
   flex-direction: column;
-  position: relative; /* Para que el footer se posicione correctamente al final del flujo */
+  position: relative;
 }
 
 /* === BACKGROUNDS & OVERLAYS (GLOBAL) === */
@@ -20,7 +19,7 @@
   inset: 0;
   z-index: 0;
   width: 100%;
-  height: 100vh; /* Altura fija para el fondo */
+  height: 100vh;
 }
 
 .background-image {
@@ -51,14 +50,14 @@
 
 /* === HERO SECTION === */
 .hero-section {
-  height: calc(100vh - 80px); /* Ajustar según altura del navbar */
+  height: calc(100vh - 80px);
   min-height: 600px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 2; /* Ensure content is above overlay */
+  z-index: 2;
 }
 
 .home-content {
@@ -66,11 +65,10 @@
   text-align: center;
   width: 100%;
   max-width: 900px;
-  padding: clamp(1.25rem, 3vw, 2rem);
 }
 
 .home-title {
-  font-size: clamp(2rem, 6vw, 4rem);
+  font-size: clamp(2.5rem, 8vw, 5rem);
   font-weight: 800;
   margin: 0 0 var(--spacing-sm);
   color: var(--color-gold-light);
@@ -80,7 +78,7 @@
 }
 
 .home-tagline {
-  font-size: clamp(1.05rem, 3vw, 1.8rem);
+  font-size: clamp(1.15rem, 4vw, 2rem);
   font-style: italic;
   margin: 0 0 var(--spacing-lg);
   color: var(--text-light);
@@ -135,8 +133,8 @@
   width: 100%;
   min-height: 100vh;
   position: relative;
-  background-color: transparent; /* Fondo transparente para ver el overlay */
-  z-index: 2; /* Ensure content is above overlay */
+  background-color: transparent;
+  z-index: 2;
 }
 
 /* === LEFT COLUMN: PROFILE IMAGE === */
@@ -162,7 +160,7 @@
   border-radius: 50%;
   overflow: hidden;
   margin-left: var(--profile-circle-offset);
-  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.3); /* Sombras más oscuras para fondo oscuro */
+  box-shadow: 20px 0 60px rgba(0, 0, 0, 0.3);
   border: 10px solid rgba(255, 255, 255, 0.2);
   transition: transform 0.5s ease;
 }
@@ -206,14 +204,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  color: var(--text-light); /* Texto blanco por defecto en esta sección */
+  color: var(--text-light);
 }
 
 .about-greeting {
   font-size: 1rem;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--color-gold-light); /* Dorado claro para subtítulos */
+  color: var(--color-gold-light);
   font-weight: 600;
   margin-bottom: -10px;
   display: block;
@@ -224,7 +222,7 @@
   font-weight: 800;
   line-height: 1;
   margin: 0;
-  color: var(--text-light); /* Blanco para contraste máximo */
+  color: var(--text-light);
   letter-spacing: -1px;
   text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
 }
@@ -240,7 +238,7 @@
 .about-description {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: rgba(255, 255, 255, 0.9); /* Blanco semitransparente para lectura cómoda */
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: var(--spacing-lg);
   font-weight: 400;
 }
@@ -256,7 +254,7 @@
   display: flex;
   gap: var(--spacing-xl);
   padding-top: var(--spacing-lg);
-  border-top: 1px solid rgba(255, 255, 255, 0.2); /* Borde sutil claro */
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .stat-item {
@@ -267,13 +265,13 @@
 .stat-number {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--text-light); /* Blanco */
+  color: var(--text-light);
   line-height: 1;
 }
 
 .stat-label {
   font-size: 0.85rem;
-  color: var(--color-gold-light); /* Dorado claro */
+  color: var(--color-gold-light);
   text-transform: uppercase;
   margin-top: 5px;
   letter-spacing: 1px;
@@ -284,7 +282,7 @@
   :root {
     --profile-circle-size: 60vh;
   }
-  
+
   .about-column {
     padding: var(--spacing-lg);
   }
@@ -300,7 +298,6 @@
     grid-template-rows: auto auto;
   }
 
-  /* Adjust profile image for mobile - center it instead of left overflow */
   .profile-column {
     justify-content: center;
     padding: var(--spacing-xl) 0 0 0;
@@ -330,7 +327,7 @@
     width: 100%;
     flex-direction: column;
   }
-  
+
   .about-actions button {
     width: 100%;
   }
@@ -339,11 +336,6 @@
     justify-content: center;
     width: 100%;
     gap: var(--spacing-lg);
-  }
-
-  .home-buttons {
-    flex-direction: column;
-    align-items: center;
   }
 }
 
