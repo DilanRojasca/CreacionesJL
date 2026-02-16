@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,6 +9,7 @@ import { ProductsProvider } from './context/ProductsContext';
 import Navbar from './components/Navbar/Navbar';
 import Footer from './components/Footer/Footer';
 import './App.css';
+import { useEffect } from 'react';
 
 const Home = lazy(() => import('./views/Home/Home'));
 const LoginForm = lazy(() => import('./views/LoginForm/LoginForm'));
@@ -20,6 +21,16 @@ const ProfileView = lazy(() => import('./views/ProfileView/ProfileView'));
   const AdminView = lazy(() => import('./views/AdminView/AdminView'));
   const ForgotPassword = lazy(() => import('./views/ForgotPassword/ForgotPassword'));
   
+  function ScrollToTop() {
+    const { pathname } = useLocation();
+
+    useEffect(() => {
+      window.scrollTo(0, 0);
+    }, [pathname]);
+
+    return null;
+  }
+
   function App() {
     return (
       <AuthProvider>
@@ -29,6 +40,7 @@ const ProfileView = lazy(() => import('./views/ProfileView/ProfileView'));
               <div className="App">
                 <Navbar />
                 <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</div>}>
+                  <ScrollToTop />
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/login" element={<LoginForm />} />
