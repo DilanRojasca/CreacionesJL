@@ -148,11 +148,11 @@ const RegisterForm: React.FC = () => {
         // Construir la dirección legible antes de enviar
         const formattedAddress = construirDireccionLegible(direccion);
         // Registrar usuario usando el contexto de autenticación
-        const { error } = await register(email, password, firstName, lastName, phone, Country, Department, City, formattedAddress, addressdetails, direccion);
+        const { error: registerError } = await register(email, password, firstName, lastName, phone, Country, Department, City, formattedAddress, addressdetails, direccion);
 
-        if (error) {
+        if (registerError) {
           // Manejar errores específicos de Supabase
-          if (error.message.includes('already registered') || error.message.includes('Este correo electrónico ya está registrado')) {
+          if (registerError.includes('already registered') || registerError.includes('Este correo electrónico ya está registrado')) {
             const errorState = {
               ...newErrors,
               email: 'Este correo electrónico ya está registrado.',
@@ -160,7 +160,12 @@ const RegisterForm: React.FC = () => {
             };
             setErrors(errorState);
             scrollToError(errorState);
-          } else if (error.message.includes('Password')) {
+          } else if (
+            registerError.toLowerCase().includes('password') || 
+            registerError.toLowerCase().includes('contraseña') ||
+            registerError.toLowerCase().includes('6 characters') ||
+            registerError.toLowerCase().includes('6 caracteres')
+          ) {
             const errorState = {
               ...newErrors,
               password: 'La contraseña debe tener al menos 6 caracteres.',
@@ -171,11 +176,11 @@ const RegisterForm: React.FC = () => {
           } else {
             setErrors({
               ...newErrors,
-              general: error.message || 'Error al registrar. Por favor, intenta de nuevo.',
+              general: registerError || 'Error al registrar. Por favor, intenta de nuevo.',
             });
             // También mostrar toast si es error de límite de correos
-            if (error.message.toLowerCase().includes('email rate limit exceeded')) {
-              authError(error);
+            if (registerError.toLowerCase().includes('email rate limit exceeded')) {
+              authError(registerError);
             }
           }
         } else {
@@ -206,10 +211,11 @@ const RegisterForm: React.FC = () => {
           navigate('/login');
         }
       } catch (error: unknown) {
-        console.error('Error al registrar:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+        console.error('Error al registrar:', errorMessage);
         setErrors({
           ...newErrors,
-          general: 'Ocurrió un error inesperado. Por favor, intenta de nuevo.',
+          general: `Ocurrió un error inesperado: ${errorMessage}`,
         });
       } finally {
         setIsSubmitting(false);

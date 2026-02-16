@@ -15,7 +15,7 @@ interface AuthContextType {
   isStaff: boolean;
 
   // Funciones
-  login: (email: string, password: string) => Promise<{ error: unknown }>;
+  login: (email: string, password: string) => Promise<{ error: string | null }>;
   register: (
     email: string,
     password: string,
@@ -28,9 +28,9 @@ interface AuthContextType {
     address?: string,
     addressDetails?: string,
     addressJson?: object
-  ) => Promise<{ error: unknown }>;
+  ) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: unknown }>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
 }
 
 /**
@@ -103,7 +103,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     const { error } = await loginUser(email, password);
     setIsLoading(false);
-    return { error };
+    const errorMessage: string | null = error instanceof Error ? error.message : error ? 'Error desconocido' : null;
+    return { error: errorMessage };
   };
 
 
@@ -123,7 +124,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     const { error } = await registerUser(email, password, firstName, lastName, phone, country, department, city, address, addressDetails, addressJson);
     setIsLoading(false);
-    return { error };
+    const errorMessage: string | null = error instanceof Error ? error.message : error ? 'Error desconocido' : null;
+    return { error: errorMessage };
   };
 
   const logout = async () => {
@@ -137,7 +139,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     const { error } = await authResetPassword(email);
     setIsLoading(false);
-    return { error };
+    const errorMessage: string | null = error instanceof Error ? error.message : error ? 'Error desconocido' : null;
+    return { error: errorMessage };
   };
 
   // Valor del contexto

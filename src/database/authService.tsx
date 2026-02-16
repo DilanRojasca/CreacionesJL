@@ -114,8 +114,7 @@ export const registerUser = async (
       if (
         error.message.includes('User already registered') ||
         error.message.includes('already been registered') ||
-        error.message.includes('duplicate') ||
-        error.status === 422
+        error.message.includes('duplicate')
       ) {
         return {
           user: null,
@@ -126,6 +125,8 @@ export const registerUser = async (
           } as AuthError,
         };
       }
+      
+      // Devolver el error tal cual viene de Supabase para otros casos
       return { user: null, session: null, error };
     }
 
