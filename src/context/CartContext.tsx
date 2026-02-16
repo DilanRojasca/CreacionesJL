@@ -23,19 +23,18 @@ export const useCart = () => {
 const CART_STORAGE_KEY = 'creacionesJL_cart_v2';
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-  // Cargar datos iniciales de localStorage
-  useEffect(() => {
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     const storedCart = localStorage.getItem(CART_STORAGE_KEY);
     if (storedCart) {
       try {
-        setCartItems(JSON.parse(storedCart));
+        return JSON.parse(storedCart);
       } catch (error) {
         console.error('Error parsing cart from localStorage:', error);
+        return [];
       }
     }
-  }, []);
+    return [];
+  });
 
   // Guardar en localStorage cada vez que el carrito cambie
   useEffect(() => {
