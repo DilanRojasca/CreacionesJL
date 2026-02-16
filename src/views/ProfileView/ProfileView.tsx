@@ -16,6 +16,7 @@ import { useNotifications } from '../../hooks/useNotifications';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import ChangePasswordForm from '../../components/forms/ChangePasswordForm';
 import Button from '../../components/Button/Button';
+import type { User } from '@supabase/supabase-js';
 import './ProfileView.css';
 
 interface UserProfile {
@@ -87,7 +88,7 @@ const ProfileView: React.FC = () => {
   }, [user]);
 
   // Helper to map Supabase metadata to profile structure
-  const mapMetadataToProfile = (user: any): UserProfile => ({
+  const mapMetadataToProfile = (user: User): UserProfile => ({
     id: user.id,
     first_name: user.user_metadata.first_name || '',
     last_name: user.user_metadata.last_name || '',
@@ -126,8 +127,9 @@ const ProfileView: React.FC = () => {
       notifications.success('Tu perfil ha sido eliminado permanentemente.');
       await supabase.auth.signOut();
       navigate('/login');
-    } catch (err: any) {
-      console.error('Error inesperado:', err.message || err);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      console.error('Error inesperado:', errorMessage);
       notifications.error('Ocurrió un error inesperado al eliminar tu cuenta.');
       setIsDeleting(false);
     }

@@ -58,8 +58,9 @@ const UpdateProfile: React.FC = () => {
             address_details: data.address_details || ''
           });
         }
-      } catch (err: any) {
-        console.error('Error al cargar perfil:', err.message);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+        console.error('Error al cargar perfil:', errorMessage);
         showError('No se pudieron cargar los datos del perfil.');
       } finally {
         setInitialLoading(false);
@@ -122,8 +123,9 @@ const UpdateProfile: React.FC = () => {
           navigate('/profile');
         }, 1000);
       }
-    } catch (err: any) {
-      console.error('Error inesperado:', err.message);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      console.error('Error inesperado:', errorMessage);
       showError('Ocurrió un error inesperado al actualizar.');
     } finally {
       setLoading(false);

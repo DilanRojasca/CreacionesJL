@@ -205,7 +205,7 @@ const RegisterForm: React.FC = () => {
           setAddressdetails('');
           navigate('/login');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error al registrar:', error);
         setErrors({
           ...newErrors,

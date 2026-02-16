@@ -15,7 +15,7 @@ interface AuthContextType {
   isStaff: boolean;
 
   // Funciones
-  login: (email: string, password: string) => Promise<{ error: any }>;
+  login: (email: string, password: string) => Promise<{ error: unknown }>;
   register: (
     email: string,
     password: string,
@@ -28,9 +28,9 @@ interface AuthContextType {
     address?: string,
     addressDetails?: string,
     addressJson?: object
-  ) => Promise<{ error: any }>;
+  ) => Promise<{ error: unknown }>;
   logout: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: unknown }>;
 }
 
 /**

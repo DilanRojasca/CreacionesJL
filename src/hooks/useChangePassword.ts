@@ -49,8 +49,9 @@ export const useChangePassword = () => {
         message: 'Contraseña actualizada correctamente.' 
       };
 
-    } catch (err: any) {
-      console.error('Error changing password:', err);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      console.error('Error changing password:', errorMessage);
       return { 
         success: false, 
         error: 'Ocurrió un error inesperado.' 
