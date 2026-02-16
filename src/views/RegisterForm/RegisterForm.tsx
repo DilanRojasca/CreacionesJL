@@ -66,7 +66,7 @@ const RegisterForm: React.FC = () => {
 
   const validateEmail = (email: string) => {
     // Expresión regular para validar el formato de email
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
     return emailRegex.test(email);
   };
 
@@ -89,7 +89,7 @@ const RegisterForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let newErrors = {
+    const newErrors = {
       email: '',
       password: '',
       confirmPassword: '',
